@@ -4,18 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Смайлик Кликер 😃</title>
-<!-- Подключение Telegram Web App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; user-select: none; overflow: hidden; }
   body {
     background: linear-gradient(180deg, #a8e0ff 0%, #6ec6ff 40%, #3aa9e8 100%);
-    color: #fff;
-    display: flex; flex-direction: column;
-    height: 100vh; height: 100dvh;
-    transition: background 0.5s ease;
-    position: relative;
+    color: #fff; display: flex; flex-direction: column;
+    height: 100vh; height: 100dvh; transition: background 0.5s ease; position: relative;
   }
 
   /* ===== Themes ===== */
@@ -45,13 +41,11 @@
   body.theme-halloween .stat-pill { border-color: #ff8c00; background: rgba(255,140,0,0.2); }
   body.theme-halloween .tabs-wrap { background: rgba(40, 15, 0, 0.8); border-top-color: #ff8c00; }
 
-  /* weather animations */
   .weather-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .snowflake, .leaf, .spider { position: absolute; top: -50px; animation: fall linear infinite; }
   @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0.6; } }
   @keyframes crawl { 0% { transform: translate(0,0) rotate(0deg); } 25% { transform: translate(30px, 50px) rotate(20deg); } 50% { transform: translate(-20px, 90px) rotate(-15deg); } 75% { transform: translate(40px, 130px) rotate(25deg); } 100% { transform: translate(0, 180px) rotate(0deg); } }
 
-  /* ===== Header ===== */
   header { text-align: center; padding: 8px 12px 4px; flex-shrink: 0; position: relative; z-index: 2; }
   .balance { font-size: 28px; font-weight: 800; text-shadow: 0 2px 6px rgba(0,0,0,0.25); letter-spacing: 0.5px; cursor: pointer; }
   .stats-block { margin-top: 6px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; font-size: 12px; font-weight: 700; }
@@ -59,12 +53,10 @@
   .stat-pill b { font-size: 14px; }
   .buff-line { font-size: 11px; opacity: 0.95; margin-top: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.25); min-height: 14px; }
 
-  /* ===== Content ===== */
   .content { flex: 1; overflow-y: auto; padding: 8px 12px 110px; min-height: 0; -webkit-overflow-scrolling: touch; position: relative; z-index: 1; }
   .content::-webkit-scrollbar { width: 0; }
   .main-centered { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 10px 0; }
 
-  /* ===== Smiley ===== */
   #smiley { font-size: 170px; line-height: 1; background: transparent; border: none; cursor: pointer; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3)); transition: transform 0.08s; padding: 0; }
   #smiley:active { transform: scale(0.9); }
   #smiley.pop { animation: pop 0.18s ease; }
@@ -73,7 +65,9 @@
   .float-num { position: fixed; pointer-events: none; font-weight: 800; font-size: 22px; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.4); animation: floatUp 0.9s ease-out forwards; z-index: 999; }
   @keyframes floatUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -80px) scale(1.3); opacity: 0; } }
 
-  /* ===== Cards / buttons ===== */
+  .spider-burst { position: fixed; font-size: 26px; pointer-events: none; z-index: 998; animation: spiderRun 0.8s ease-out forwards; }
+  @keyframes spiderRun { 0% { transform: translate(-50%,-50%) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(0.6); opacity: 0; } }
+
   .card { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; backdrop-filter: blur(3px); }
   .card-info { flex: 1; min-width: 0; }
   .card-title { font-weight: 700; font-size: 15px; }
@@ -84,7 +78,6 @@
   .btn.big { padding: 14px 22px; font-size: 16px; }
   .btn.danger { border-color: #ff9c9c; color: #ffdddd; }
 
-  /* ===== Rewards ===== */
   .reward-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
   .reward-day { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6); border-radius: 14px; padding: 10px 4px; text-align: center; font-size: 12px; }
   .reward-day .day { font-weight: 800; font-size: 12px; opacity: 0.9; }
@@ -93,12 +86,10 @@
   .reward-day.today { box-shadow: 0 0 0 3px #fff, 0 0 14px rgba(255,255,255,0.7); }
   .reward-day.claimed::after { content: '✓'; display: block; font-size: 11px; margin-top: 2px; }
 
-  /* ===== Codes ===== */
   .codes-row { display: flex; gap: 8px; margin-bottom: 14px; }
   .codes-row input { flex: 1; background: rgba(255,255,255,0.15); border: 2px solid #fff; border-radius: 14px; color: #fff; padding: 12px 14px; font-size: 15px; outline: none; }
   .codes-row input::placeholder { color: rgba(255,255,255,0.7); }
 
-  /* ===== Cases ===== */
   .case-visual { font-size: 80px; text-align: center; padding: 16px; animation: shake 2.5s infinite; }
   @keyframes shake { 0%, 90%, 100% { transform: rotate(0); } 92% { transform: rotate(-6deg) scale(1.05); } 94% { transform: rotate(6deg) scale(1.05); } 96% { transform: rotate(-4deg) scale(1.03); } 98% { transform: rotate(4deg) scale(1.03); } }
   .case-opening { font-size: 90px; text-align: center; padding: 20px; animation: spinpop 0.6s ease; }
@@ -106,7 +97,6 @@
   .drop-pool { display: flex; justify-content: center; gap: 14px; font-size: 28px; margin: 10px 0; flex-wrap: wrap; }
   .drop-pool .chance { font-size: 10px; display: block; text-align: center; opacity: 0.8; }
 
-  /* ===== Shelf ===== */
   .section-title { font-size: 14px; font-weight: 800; opacity: 0.95; margin: 6px 4px 8px; text-shadow: 0 1px 3px rgba(0,0,0,0.25); letter-spacing: 0.5px; }
   .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 8px; }
   .slot { aspect-ratio: 1; background: rgba(255,255,255,0.15); border: 2px dashed rgba(255,255,255,0.7); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 44px; cursor: pointer; transition: transform 0.1s, background 0.15s; position: relative; }
@@ -123,13 +113,11 @@
   .inv-item.legendary { background: rgba(200, 100, 255, 0.35); border-color: #d97aff; }
   .empty-msg { text-align: center; opacity: 0.8; font-size: 13px; padding: 16px; }
 
-  /* ===== Toast ===== */
   #toast-wrap { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 1000; pointer-events: none; width: 90%; max-width: 340px; }
   .toast { background: rgba(30, 90, 150, 0.92); border: 2px solid #fff; border-radius: 14px; padding: 10px 16px; font-size: 13px; font-weight: 700; text-align: center; animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards; text-shadow: 0 1px 2px rgba(0,0,0,0.3); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
   @keyframes toastIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   @keyframes toastOut { to { transform: translateY(-20px); opacity: 0; } }
 
-  /* ===== Bottom tabs ===== */
   .tabs-wrap { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(20, 80, 130, 0.7); backdrop-filter: blur(8px); border-top: 2px solid rgba(255,255,255,0.6); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; padding: 12px 10px calc(12px + env(safe-area-inset-bottom)); z-index: 100; -webkit-overflow-scrolling: touch; transition: background 0.4s, border-color 0.4s; }
   .tabs-wrap::-webkit-scrollbar { display: none; }
   .tabs { display: inline-flex; gap: 10px; padding: 0 4px; }
@@ -137,7 +125,6 @@
   .tab:active { transform: scale(0.95); }
   .tab.active { background: rgba(255,255,255,0.35); box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset; }
 
-  /* ===== Modal ===== */
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 500; padding: 16px; animation: fadeIn 0.2s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .modal { background: linear-gradient(180deg, #6ec6ff 0%, #3aa9e8 100%); border: 3px solid #fff; border-radius: 22px; padding: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: modalIn 0.25s ease; max-height: 88vh; overflow-y: auto; }
@@ -148,7 +135,6 @@
   .modal-actions { display: flex; flex-direction: column; gap: 8px; }
   .modal-actions .btn { width: 100%; }
 
-  /* ===== Crash ===== */
   .crash-chart-wrap { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6); border-radius: 16px; padding: 10px; margin-bottom: 10px; position: relative; }
   #crashCanvas { width: 100%; height: 180px; display: block; }
   .crash-mult { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 34px; font-weight: 900; text-shadow: 0 2px 8px rgba(0,0,0,0.4); pointer-events: none; }
@@ -162,7 +148,6 @@
   .quick-bets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 10px; }
   .quick-bets .btn { padding: 8px 2px; font-size: 12px; }
 
-  /* ===== Halloween ===== */
   .door-wrap { display: flex; flex-direction: column; align-items: center; padding: 14px 0; position: relative; }
   .door-visual { font-size: 140px; line-height: 1; transition: transform 0.3s; filter: drop-shadow(0 8px 20px rgba(255,140,0,0.4)); cursor: pointer; }
   .door-visual.opening { animation: doorOpen 0.9s ease forwards; }
@@ -180,7 +165,6 @@
   @keyframes gadostFade { 0% { opacity: 0; } 5% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes gadostGlitch { 0% { transform: translate(0,0); } 100% { transform: translate(4px,-3px); } }
 
-  /* ===== Themes tab ===== */
   .theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
   .theme-card { aspect-ratio: 1.4; border-radius: 18px; border: 3px solid #fff; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-weight: 800; font-size: 13px; transition: transform 0.1s; position: relative; overflow: hidden; padding: 10px; text-align: center; }
   .theme-card:active { transform: scale(0.96); }
@@ -193,7 +177,6 @@
   .theme-dark-preview     { background: linear-gradient(180deg, #1a1a2e, #0f0f1e); }
   .theme-halloween-preview{ background: linear-gradient(180deg, #1a0f00, #6b2c00); }
 
-  /* ===== Achievements ===== */
   .ach-item { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.5); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
   .ach-item.done { background: rgba(120, 220, 120, 0.25); border-color: #9cff9c; }
   .ach-icon { font-size: 28px; flex-shrink: 0; }
@@ -202,7 +185,6 @@
   .ach-desc { font-size: 11px; opacity: 0.9; }
   .ach-progress { font-size: 11px; opacity: 0.7; margin-top: 2px; }
 
-  /* ===== Daily quests ===== */
   .quest-item { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.5); border-radius: 14px; padding: 12px; margin-bottom: 8px; }
   .quest-item.done { background: rgba(120, 220, 120, 0.25); border-color: #9cff9c; }
   .quest-info { flex: 1; }
@@ -210,7 +192,6 @@
   .quest-progress { font-size: 11px; opacity: 0.85; margin-top: 2px; }
   .quest-reward { font-size: 11px; font-weight: 800; color: #ffd700; }
 
-  /* ===== Craft ===== */
   .craft-area { position: relative; width: 100%; height: 320px; background: rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.6); border-radius: 18px; overflow: hidden; margin-bottom: 12px; }
   .qte-target { position: absolute; width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, #6ec6ff 70%); border: 3px solid #fff; box-shadow: 0 0 20px rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; color: #1a5a8a; animation: qtePop 0.2s ease; }
   @keyframes qtePop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -218,6 +199,53 @@
   @keyframes qteHit { to { transform: scale(1.8); opacity: 0; background: #9cff9c; } }
   .qte-status { text-align: center; font-size: 15px; font-weight: 800; margin-bottom: 8px; }
   .craft-info { text-align: center; font-size: 12px; opacity: 0.85; margin-bottom: 10px; }
+
+  /* Piggy */
+  .piggy-card { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6); border-radius: 18px; padding: 14px; margin-bottom: 14px; }
+  .piggy-counter { text-align: center; font-size: 22px; font-weight: 900; margin: 4px 0 8px; text-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+  .piggy-counter small { font-size: 13px; opacity: 0.8; font-weight: 700; }
+  .piggy-bar { height: 14px; background: rgba(0,0,0,0.25); border: 2px solid rgba(255,255,255,0.6); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .piggy-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ffd700, #ffb347); transition: width 0.3s ease; }
+  .piggy-sources { font-size: 12px; opacity: 0.9; line-height: 1.6; margin-bottom: 10px; }
+
+  /* Pass */
+  .pass-bar { height: 12px; background: rgba(0,0,0,0.25); border: 2px solid rgba(255,255,255,0.6); border-radius: 10px; overflow: hidden; margin: 6px 0 14px; }
+  .pass-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff8c00, #ffd700); transition: width 0.3s ease; }
+  .pass-level { background: rgba(255,140,0,0.1); border: 2px solid #ff8c00; border-radius: 16px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+  .pass-level.claimed { background: rgba(120,220,120,0.2); border-color: #9cff9c; }
+    .pass-level.locked { opacity: 0.55; }
+  .pass-level .lvl-num { font-size: 26px; font-weight: 900; min-width: 38px; text-align: center; }
+  .pass-level .lvl-info { flex: 1; min-width: 0; }
+  .pass-level .lvl-title { font-weight: 800; font-size: 14px; }
+  .pass-level .lvl-reward { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+  .pass-level .lvl-price { font-size: 12px; font-weight: 800; color: #ffd18c; margin-top: 2px; }
+
+  /* Account */
+  .acc-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6); border-radius: 18px; padding: 14px; margin-bottom: 14px; }
+  .acc-avatar { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.25); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; overflow: hidden; }
+  .acc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .acc-info { flex: 1; min-width: 0; }
+  .acc-name { font-weight: 800; font-size: 15px; }
+  .acc-id { font-size: 12px; opacity: 0.85; }
+  .acc-balance { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+  .acc-admin-badge { color: #ffd700; font-weight: 900; }
+
+  /* Toggle */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+  .toggle { width: 52px; height: 30px; border-radius: 15px; background: rgba(0,0,0,0.3); border: 2px solid #fff; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+  .toggle.on { background: #4cd964; }
+  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+  .toggle.on::after { transform: translateX(22px); }
+
+  /* Animation cards */
+  .anim-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+  .anim-card { aspect-ratio: 1.6; border-radius: 16px; border: 3px solid #fff; background: rgba(255,255,255,0.15); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-weight: 800; font-size: 13px; }
+  .anim-card .big-emoji { font-size: 34px; }
+  .anim-card.active { box-shadow: 0 0 0 4px #fff, 0 0 20px rgba(255,255,255,0.8); background: rgba(255,255,255,0.3); }
+  .anim-card.locked { opacity: 0.45; }
+
+  .admin-panel { border: 2px dashed #ffd700; border-radius: 16px; padding: 12px; margin-top: 10px; background: rgba(255,215,0,0.08); }
+  .admin-panel .card-title { color: #ffd700; }
 
   @media (max-height: 640px) {
     #smiley { font-size: 130px; }
@@ -249,33 +277,30 @@
 
 <script>
 /* ============================================================
-   ФЛАГИ (для продакшена)
+   ФЛАГИ СБОРКИ (пункт 0)
 ============================================================ */
 const ENABLE_HALLOWEEN = true;
-const ENABLE_ADMIN = false; // ВЫКЛЮЧЕНО ДЛЯ ТГ
+const ENABLE_ADMIN = true;
+const ADMIN_USERNAMES = ['bocck4056'];
+const ADMIN_IDS = [];
 
 /* ============================================================
-   TELEGRAM WEB APP & HAPTICS
+   TELEGRAM WEB APP
 ============================================================ */
 const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand(); // Развернуть на весь экран
-}
+if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
 
+// Пункт 7 — глобальная вибрация
 function vibrate(style = 'light') {
+  if (!state.vibrateEnabled) return;
   if (tg && tg.HapticFeedback) {
-    try {
-      tg.HapticFeedback.impactOccurred(style);
-    } catch (e) {}
+    try { tg.HapticFeedback.impactOccurred(style); } catch (e) {}
   }
 }
-
 function vibrateNotification(type = 'success') {
+  if (!state.vibrateEnabled) return;
   if (tg && tg.HapticFeedback) {
-    try {
-      tg.HapticFeedback.notificationOccurred(type);
-    } catch (e) {}
+    try { tg.HapticFeedback.notificationOccurred(type); } catch (e) {}
   }
 }
 
@@ -352,7 +377,8 @@ const GOLD_DROPS   = [ { s: '😇', w: 30 }, { s: '🤑', w: 25 }, { s: '🧐', 
 const LEGENDARY_DROPS = [ { s: '🐉', w: 50 }, { s: '🦄', w: 50 } ];
 const THEMATIC_DROPS = THEMATIC_SMILEYS.map(s => ({ s, w: 1 }));
 
-const THEMES = ['winter', 'autumn', 'halloween', 'dark'];
+// Пункт 4: Хэллоуин убран из кейса тем
+const THEMES = ['winter', 'autumn', 'dark'];
 const THEME_NAMES = { winter: '❄️ Зима', autumn: '🍁 Осень', halloween: '🎃 Хэллоуин', dark: '🌙 Тёмная', default: '💧 Голубая' };
 
 const CODES = {
@@ -369,6 +395,15 @@ const HALLOWEEN_UPGRADES = [
   { id: 'h3', name: 'Тыквенный сок',      desc: '+0.5 конфеты за клик',       base: 800,  power: 0.5,  kind: 'click' },
   { id: 'h4', name: 'Конфетный станок',   desc: '+0.1 конфеты в секунду',     base: 500,  power: 0.1,  kind: 'cps' },
   { id: 'h5', name: 'Сахарный вихрь',     desc: '+0.5 конфеты в секунду',     base: 2000, power: 0.5,  kind: 'cps' },
+];
+
+// Пункт 3: Хэллоуин-пасс
+const PASS_LEVELS = [
+  { lvl: 1, price: 100000,    title: '🎭 Маска',        reward: '+300% клик/CPS/конфеты' },
+  { lvl: 2, price: 500000,    title: '+100 к клику',    reward: 'Флэт +100 за клик навсегда' },
+  { lvl: 3, price: 1000000,   title: '+500 к клику',    reward: 'Флэт +500 за клик навсегда' },
+  { lvl: 4, price: 10000000,  title: '🎃 Хэллоуин-тема',reward: 'Эксклюзивная тема' },
+  { lvl: 5, price: 1000000,   title: '🕷 Анимка клика', reward: 'Анимация «пауки»' },
 ];
 
 const ACHIEVEMENTS = [
@@ -420,7 +455,14 @@ function defaultState() {
     achievements: {},
     daily: { date: '', quests: [], progress: {}, claimed: {} },
     themesOwned: [], activeTheme: 'default', themeCaseOpened: 0, freezeUntil: 0,
-    halloween: { candy: 0, candyFrac: 0, items: {}, halUpgrades: halUpg, lastOnline: Date.now(), pendingCandy: 0, doorOpenedCount: 0 },
+    vibrateEnabled: true,
+    clickAnimation: 'default',
+    animationsOwned: ['default'],
+    halloween: {
+      candy: 0, candyFrac: 0, items: {}, halUpgrades: halUpg, lastOnline: Date.now(),
+      pendingCandy: 0, doorOpenedCount: 0,
+      passLevel: 0, passClaimed: [], clickBonusFlat: 0,
+    },
   };
 }
 
@@ -428,7 +470,7 @@ let state = loadState();
 
 function loadState() {
   try {
-    const raw = localStorage.getItem('smileyClickerSave_v4');
+    const raw = localStorage.getItem('smileyClickerSave_v5');
     if (!raw) return initNew();
     const s = JSON.parse(raw);
     const def = defaultState();
@@ -436,10 +478,13 @@ function loadState() {
     merged.halloween = { ...def.halloween, ...(s.halloween || {}) };
     merged.halloween.halUpgrades = { ...def.halloween.halUpgrades, ...(s.halloween?.halUpgrades || {}) };
     merged.halloween.items = { ...(s.halloween?.items || {}) };
+    merged.halloween.passClaimed = Array.isArray(s.halloween?.passClaimed) ? s.halloween.passClaimed : [];
     merged.stats = { ...def.stats, ...(s.stats || {}) };
     merged.daily = { ...def.daily, ...(s.daily || {}) };
     merged.daily.progress = { ...(s.daily?.progress || {}) };
     merged.daily.claimed = { ...(s.daily?.claimed || {}) };
+    merged.animationsOwned = Array.isArray(s.animationsOwned) ? s.animationsOwned : ['default'];
+    if (typeof merged.vibrateEnabled !== 'boolean') merged.vibrateEnabled = true;
     fixShelf(merged);
     return merged;
   } catch (e) { return initNew(); }
@@ -461,26 +506,37 @@ function saveState() {
   try {
     state.lastOnline = Date.now();
     state.halloween.lastOnline = Date.now();
-    localStorage.setItem('smileyClickerSave_v4', JSON.stringify(state));
+    localStorage.setItem('smileyClickerSave_v5', JSON.stringify(state));
   } catch(e) {}
 }
 
 /* ============================================================
-   ФОРМАТИРОВАНИЕ
+   УТИЛИТЫ
 ============================================================ */
 function fmt(n) { n = Math.floor(n); return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
 function todayStr() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
+/* Пункт 6: проверка админа (ПРЕДУПРЕЖДЕНИЕ: initDataUnsafe не проверен на сервере!) */
+const TG_USER = tg?.initDataUnsafe?.user;
+function checkAdmin() {
+  if (!ENABLE_ADMIN) return false;
+  const u = TG_USER;
+  if (!u) return false;
+  const byName = u.username && ADMIN_USERNAMES.includes(u.username);
+  const byId = u.id && ADMIN_IDS.includes(u.id);
+  return !!(byName || byId);
+}
+const IS_ADMIN = checkAdmin();
+
 /* ============================================================
-   СТАТИСТИКА И ДОСТИЖЕНИЯ
+   СТАТИСТИКА
 ============================================================ */
 function bumpStat(key, value = 1) { state.stats[key] = (state.stats[key] || 0) + value; checkAchievements(); }
 function setStatMax(key, value) { state.stats[key] = Math.max(state.stats[key] || 0, value); checkAchievements(); }
 function checkAchievements() {
   for (const a of ACHIEVEMENTS) {
     if (state.achievements[a.id]) continue;
-    const val = state.stats[a.stat] || 0;
-    if (val >= a.goal) { state.achievements[a.id] = true; grantReward(a.reward, `🏅 Достижение: ${a.title}`); }
+    if ((state.stats[a.stat] || 0) >= a.goal) { state.achievements[a.id] = true; grantReward(a.reward, `🏅 Достижение: ${a.title}`); }
   }
 }
 function grantReward(reward, msg) {
@@ -519,40 +575,100 @@ function getCasePrice(kind) { if (state.adminFree) return 0; switch (kind) { cas
 function getCaseRefund(kind) { switch (kind) { case 'normal': return CASE_REFUND; case 'gold': return GOLD_CASE_REFUND; case 'legendary': return LEGENDARY_CASE_REFUND; case 'thematic': return THEMATIC_CASE_REFUND; case 'theme': return THEME_CASE_REFUND; } return CASE_REFUND; }
 function getHalloweenUpgradePrice(u) { if (state.adminFree) return 0; const lvl = state.halloween.halUpgrades[u.id] || 0; return Math.ceil(u.base * Math.pow(1.15, lvl)); }
 
-function baseClickPower() { let p = 1; for (const u of CLICK_UPGRADES) p += (state.upgrades[u.id] || 0) * u.power; return p; }
+function baseClickPower() {
+  let p = 1;
+  for (const u of CLICK_UPGRADES) p += (state.upgrades[u.id] || 0) * u.power;
+  if (ENABLE_HALLOWEEN) p += state.halloween.clickBonusFlat || 0;
+  return p;
+}
 function baseCps() { let p = 0; for (const u of CPS_UPGRADES) p += (state.upgrades[u.id] || 0) * u.power; return p; }
 
 function shelfBuffs() {
-  let clickMul = 0, cpsMul = 0; let hasGhost = false, hasBlood = false, hasZombie = false, hasVampire = false; let clickExtra = 0, cpsExtra = 0; let offlineExtra = 0;
+  let clickMul = 0, cpsMul = 0, candyMul = 0;
+  let hasGhost = false, hasBlood = false, hasZombie = false, hasVampire = false, hasMask = false;
+  let clickExtra = 0, cpsExtra = 0, offlineExtra = 0;
   for (const slot of state.shelf) {
     if (!slot) continue;
-    if (HALLOWEEN_ITEMS[slot]) { const it = HALLOWEEN_ITEMS[slot]; clickMul += it.buff.clickMul || 0; cpsMul += it.buff.cpsMul || 0; if (it.buff.noOffline) hasGhost = true; if (it.buff.doubleRefund) hasBlood = true; if (it.buff.priceUp) hasZombie = true; if (it.buff.offlineMul) hasVampire = true; continue; }
-    const meta = SMILEYS[slot]; if (!meta) continue; clickMul += meta.buff.clickMul || 0; cpsMul += meta.buff.cpsMul || 0;
+    if (slot === '🎭' && ENABLE_HALLOWEEN) { hasMask = true; clickMul += 3.0; cpsMul += 3.0; candyMul += 3.0; continue; }
+    if (HALLOWEEN_ITEMS[slot]) {
+      if (!ENABLE_HALLOWEEN) continue;
+            const it = HALLOWEEN_ITEMS[slot];
+      clickMul += it.buff.clickMul || 0;
+      cpsMul += it.buff.cpsMul || 0;
+      if (it.buff.noOffline) hasGhost = true;
+      if (it.buff.doubleRefund) hasBlood = true;
+      if (it.buff.priceUp) hasZombie = true;
+      if (it.buff.offlineMul) hasVampire = true;
+      continue;
+    }
+    const meta = SMILEYS[slot]; if (!meta) continue;
+    clickMul += meta.buff.clickMul || 0;
+    cpsMul += meta.buff.cpsMul || 0;
     if (meta.special === 'fire') { const totalUpg = Object.values(state.upgrades).reduce((a,b) => a+b, 0); cpsExtra += totalUpg * 0.05; }
     if (meta.special === 'diamond') { cpsExtra += state.inventory.length * 0.01; }
-    if (meta.special === 'hourglass') { offlineExtra += 1 * 60 * 60 * 1000; }
+    if (meta.special === 'hourglass') { offlineExtra += 60 * 60 * 1000; }
   }
-  return { clickMul, cpsMul, hasGhost, hasBlood, hasZombie, hasVampire, clickExtra, cpsExtra, offlineExtra };
+  return { clickMul, cpsMul, candyMul, hasGhost, hasBlood, hasZombie, hasVampire, hasMask, clickExtra, cpsExtra, offlineExtra };
 }
 
 function totalClickPower() { const b = shelfBuffs(); return Math.max(0, baseClickPower() * (1 + b.clickMul + b.clickExtra)); }
 function totalCps() { const b = shelfBuffs(); return Math.max(0, baseCps() * (1 + b.cpsMul + b.cpsExtra)); }
 
-function candyClickPower() { let p = 0; for (const u of HALLOWEEN_UPGRADES) { if (u.kind === 'click') p += (state.halloween.halUpgrades[u.id] || 0) * u.power; } if (state.shelf.includes('🌈')) p *= 2; return p; }
-function candyCps() { let p = 0; for (const u of HALLOWEEN_UPGRADES) { if (u.kind === 'cps') p += (state.halloween.halUpgrades[u.id] || 0) * u.power; } if (state.shelf.includes('🌈')) p *= 2; return p; }
+function candyClickPower() {
+  if (!ENABLE_HALLOWEEN) return 0;
+  let p = 0;
+  for (const u of HALLOWEEN_UPGRADES) { if (u.kind === 'click') p += (state.halloween.halUpgrades[u.id] || 0) * u.power; }
+  if (state.shelf.includes('🌈')) p *= 2;
+  if (shelfBuffs().hasMask) p *= 4.2;
+  return p;
+}
+function candyCps() {
+  if (!ENABLE_HALLOWEEN) return 0;
+  let p = 0;
+  for (const u of HALLOWEEN_UPGRADES) { if (u.kind === 'cps') p += (state.halloween.halUpgrades[u.id] || 0) * u.power; }
+  if (state.shelf.includes('🌈')) p *= 2;
+  if (shelfBuffs().hasMask) p *= 4.2;
+  return p;
+}
 
-/* ============================================================
-   OFFLINE
-============================================================ */
+/* Пункт 2: копилка оффлайна */
+function offlineCapTotal() {
+  let cap = 0;
+  for (const slot of state.shelf) {
+    if (!slot) continue;
+    const meta = SMILEYS[slot];
+    if (meta && meta.offline) cap += meta.offline.cap;
+  }
+  if (shelfBuffs().hasVampire) cap *= 2;
+  return cap;
+}
+function offlineMulTotal() {
+  let mul = 0;
+  for (const slot of state.shelf) {
+    if (!slot) continue;
+    const meta = SMILEYS[slot];
+    if (meta && meta.offline) mul += meta.offline.mul;
+  }
+  if (shelfBuffs().hasVampire) mul *= 2;
+  return mul;
+}
+
 function computeOffline() {
-  const now = Date.now(); const last = state.lastOnline || now; const b = shelfBuffs();
-  let maxMs = OFFLINE_MAX_MS + b.offlineExtra; const dt = Math.min(now - last, maxMs);
-  if (dt < 60 * 1000) return; if (b.hasGhost) return;
-  const cps = baseCps() * (1 + b.cpsMul + b.cpsExtra); if (cps <= 0) return;
-  let offlineMul = 0, offlineCap = 0;
-  for (const slot of state.shelf) { if (!slot) continue; const meta = SMILEYS[slot]; if (meta && meta.offline) { offlineMul += meta.offline.mul; offlineCap += meta.offline.cap; } }
-  if (b.hasVampire) offlineMul *= 2; if (offlineMul <= 0) return;
-  let earned = cps * (dt / 1000) * offlineMul; earned = Math.min(earned, offlineCap * (b.hasVampire ? 2 : 1)); earned = Math.floor(earned);
+  const now = Date.now();
+  const last = state.lastOnline || now;
+  const b = shelfBuffs();
+  let maxMs = OFFLINE_MAX_MS + b.offlineExtra;
+  let dt = Math.min(now - last, maxMs);
+  if (dt < 60 * 1000) return;
+  if (b.hasGhost) return;
+  const cps = baseCps() * (1 + b.cpsMul + b.cpsExtra);
+  if (cps <= 0) return;
+  const mul = offlineMulTotal();
+  const cap = offlineCapTotal();
+  if (mul <= 0 || cap <= 0) return;
+  let earned = cps * (dt / 1000) * mul;
+  earned = Math.min(earned, cap);
+  earned = Math.floor(earned);
   if (earned > 0) state.pendingOffline += earned;
 }
 
@@ -571,23 +687,19 @@ const buffLineEl = document.getElementById('buffLine');
 const tabsEl = document.getElementById('tabs');
 
 /* ============================================================
-   TABS BUILD
+   Пункт 1: НОВАЯ СТРУКТУРА ВКЛАДОК (7+1)
 ============================================================ */
 function buildTabs() {
   const tabs = [
-    { id: 'main',      label: '😃 Кликер' },
-    { id: 'shop',      label: '🛒 Магазин' },
-    { id: 'rewards',   label: '🎁 Награды' },
-    { id: 'daily',     label: '📅 Ежедневки' },
-    { id: 'ach',       label: '🏅 Достижения' },
-    { id: 'codes',     label: '🔑 Коды' },
-    { id: 'cases',     label: '📦 Кейсы' },
-    { id: 'shelf',     label: '🗄️ Полка' },
-    { id: 'craft',     label: '⚒️ Крафт' },
-    { id: 'crash',     label: '🚀 Краш' },
-    { id: 'themes',    label: '🎨 Темы' },
+    { id: 'main',     label: '😃 Кликер' },
+    { id: 'shop',     label: '🛒 Магазин' },
+    { id: 'shelf',    label: '🗄️ Полка' },
+    { id: 'bank',     label: '🏦 Банк' },
+    { id: 'games',    label: '🎮 Игры' },
+    { id: 'cases',    label: '📦 Кейсы' },
   ];
-  if (ENABLE_HALLOWEEN) tabs.push({ id: 'halloween', label: '🎃 Ивент' });
+  if (ENABLE_HALLOWEEN) tabs.push({ id: 'event', label: '🎃 Ивент' });
+  tabs.push({ id: 'settings', label: '⚙️ Настройки' });
   tabsEl.innerHTML = tabs.map(t => `<button class="tab" data-tab="${t.id}">${t.label}</button>`).join('');
 }
 
@@ -603,11 +715,10 @@ function renderHeader() {
   if (b.clickMul !== 0) parts.push(`${b.clickMul > 0 ? '+' : ''}${Math.round(b.clickMul*100)}% клик`);
   if (b.cpsMul !== 0)   parts.push(`${b.cpsMul > 0 ? '+' : ''}${Math.round(b.cpsMul*100)}% CPS`);
   if (b.cpsExtra)       parts.push(`+${Math.round(b.cpsExtra*100)}% CPS (спец)`);
-  if (b.hasGhost) parts.push('призрак: оффлайн ✕');
-  if (b.hasZombie) parts.push('зомби: цены +25%');
-  let offMul = 0, offCap = 0;
-  for (const s of state.shelf) { if (s && SMILEYS[s] && SMILEYS[s].offline) { offMul += SMILEYS[s].offline.mul; offCap += SMILEYS[s].offline.cap; } }
-  if (b.hasVampire) offMul *= 2;
+  if (b.hasMask)        parts.push('маска ×4.2 конфеты');
+  if (b.hasGhost)       parts.push('призрак: оффлайн ✕');
+  if (b.hasZombie)      parts.push('зомби: цены +25%');
+  const offMul = offlineMulTotal();
   if (offMul > 0 && !b.hasGhost) parts.push(`оффлайн ×${offMul.toFixed(2)}`);
   buffLineEl.textContent = parts.length ? ('✨ ' + parts.join(' · ')) : '';
   setStatMax('maxBalance', Math.floor(state.balance));
@@ -619,35 +730,42 @@ function renderTabs() { [...tabsEl.children].forEach(btn => { btn.classList.togg
 
 function applyTheme() {
   document.body.classList.remove('theme-winter', 'theme-autumn', 'theme-dark', 'theme-halloween');
-  if (currentTab === 'halloween' && ENABLE_HALLOWEEN) { document.body.classList.add('theme-halloween'); }
+  if (currentTab === 'event' && ENABLE_HALLOWEEN) { document.body.classList.add('theme-halloween'); }
   else if (state.activeTheme && state.activeTheme !== 'default') { document.body.classList.add('theme-' + state.activeTheme); }
   applyWeather();
 }
 
 let weatherLayer = null;
 function applyWeather() {
-  if (weatherLayer) weatherLayer.remove(); weatherLayer = null;
-  const theme = (currentTab === 'halloween' && ENABLE_HALLOWEEN) ? 'halloween' : (state.activeTheme || 'default');
-  if (theme === 'winter') { weatherLayer = document.createElement('div'); weatherLayer.className = 'weather-layer'; for (let i = 0; i < 30; i++) { const f = document.createElement('div'); f.className = 'snowflake'; f.textContent = '❄️'; f.style.left = Math.random() * 100 + '%'; f.style.fontSize = (10 + Math.random() * 20) + 'px'; f.style.animationDuration = (6 + Math.random() * 8) + 's'; f.style.animationDelay = (Math.random() * 8) + 's'; weatherLayer.appendChild(f); } document.body.appendChild(weatherLayer); }
-  else if (theme === 'autumn') { weatherLayer = document.createElement('div'); weatherLayer.className = 'weather-layer'; const leaves = ['🍁', '🍂', '🍃']; for (let i = 0; i < 25; i++) { const f = document.createElement('div'); f.className = 'leaf'; f.textContent = leaves[Math.floor(Math.random()*leaves.length)]; f.style.left = Math.random() * 100 + '%'; f.style.fontSize = (14 + Math.random() * 16) + 'px'; f.style.animationDuration = (7 + Math.random() * 8) + 's'; f.style.animationDelay = (Math.random() * 8) + 's'; weatherLayer.appendChild(f); } document.body.appendChild(weatherLayer); }
-  else if (theme === 'halloween') { weatherLayer = document.createElement('div'); weatherLayer.className = 'weather-layer'; for (let i = 0; i < 8; i++) { const f = document.createElement('div'); f.className = 'spider'; f.textContent = '🕷️'; f.style.left = Math.random() * 90 + '%'; f.style.top = Math.random() * 80 + '%'; f.style.fontSize = (16 + Math.random() * 14) + 'px'; f.style.animation = `crawl ${4 + Math.random()*3}s ease-in-out infinite alternate`; f.style.animationDelay = (Math.random() * 4) + 's'; weatherLayer.appendChild(f); } document.body.appendChild(weatherLayer); }
+  if (weatherLayer) { weatherLayer.remove(); weatherLayer = null; }
+  const theme = (currentTab === 'event' && ENABLE_HALLOWEEN) ? 'halloween' : (state.activeTheme || 'default');
+  if (theme === 'winter') {
+    weatherLayer = document.createElement('div'); weatherLayer.className = 'weather-layer';
+    for (let i = 0; i < 30; i++) { const f = document.createElement('div'); f.className = 'snowflake'; f.textContent = '❄️'; f.style.left = Math.random()*100+'%'; f.style.fontSize = (10+Math.random()*20)+'px'; f.style.animationDuration = (6+Math.random()*8)+'s'; f.style.animationDelay = (Math.random()*8)+'s'; weatherLayer.appendChild(f); }
+    document.body.appendChild(weatherLayer);
+  } else if (theme === 'autumn') {
+    weatherLayer = document.createElement('div'); weatherLayer.className = 'weather-layer';
+    const leaves = ['🍁','🍂','🍃'];
+    for (let i = 0; i < 25; i++) { const f = document.createElement('div'); f.className = 'leaf'; f.textContent = leaves[Math.floor(Math.random()*leaves.length)]; f.style.left = Math.random()*100+'%'; f.style.fontSize = (14+Math.random()*16)+'px'; f.style.animationDuration = (7+Math.random()*8)+'s'; f.style.animationDelay = (Math.random()*8)+'s'; weatherLayer.appendChild(f); }
+    document.body.appendChild(weatherLayer);
+  } else if (theme === 'halloween') {
+    weatherLayer = document.createElement('div'); weatherLayer.className = 'weather-layer';
+    for (let i = 0; i < 8; i++) { const f = document.createElement('div'); f.className = 'spider'; f.textContent = '🕷️'; f.style.left = Math.random()*90+'%'; f.style.top = Math.random()*80+'%'; f.style.fontSize = (16+Math.random()*14)+'px'; f.style.animation = `crawl ${4+Math.random()*3}s ease-in-out infinite alternate`; f.style.animationDelay = (Math.random()*4)+'s'; weatherLayer.appendChild(f); }
+    document.body.appendChild(weatherLayer);
+  }
 }
 
 function render() {
   applyTheme(); renderHeader(); renderTabs();
   switch (currentTab) {
-    case 'main': renderMain(); break;
-    case 'shop': renderShop(); break;
-    case 'rewards': renderRewards(); break;
-    case 'daily': renderDaily(); break;
-    case 'ach': renderAchievements(); break;
-    case 'codes': renderCodes(); break;
-    case 'cases': renderCases(); break;
-    case 'shelf': renderShelf(); break;
-    case 'craft': renderCraft(); break;
-    case 'crash': renderCrash(); break;
-    case 'themes': renderThemes(); break;
-    case 'halloween': if (ENABLE_HALLOWEEN) renderHalloween(); break;
+    case 'main':     renderMain(); break;
+    case 'shop':     renderShop(); break;
+    case 'shelf':    renderShelf(); break;
+    case 'bank':     renderBank(); break;
+    case 'games':    renderGames(); break;
+    case 'cases':    renderCases(); break;
+    case 'event':    if (ENABLE_HALLOWEEN) renderEvent(); else renderMain(); break;
+    case 'settings': renderSettings(); break;
   }
   saveState();
 }
@@ -658,25 +776,60 @@ function renderMain() {
   document.getElementById('smiley').addEventListener('click', onSmileyClick);
 }
 function onSmileyClick(e) {
-  const gain = totalClickPower(); state.balance += gain;
+  const gain = totalClickPower();
+  state.balance += gain;
   bumpStat('clicks'); bumpDaily('dClicks');
-  vibrate('light'); // Вибрация при клике
+  vibrate('light');
   const cc = candyClickPower();
-  if (cc > 0) { const roll = cc * (0.1 + Math.random() * 0.9); state.halloween.candyFrac += roll; if (state.halloween.candyFrac >= 1) { const whole = Math.floor(state.halloween.candyFrac); state.halloween.candy += whole; state.halloween.candyFrac -= whole; } }
+  if (cc > 0) {
+    const roll = cc * (0.1 + Math.random() * 0.9);
+    state.halloween.candyFrac += roll;
+    if (state.halloween.candyFrac >= 1) { const whole = Math.floor(state.halloween.candyFrac); state.halloween.candy += whole; state.halloween.candyFrac -= whole; }
+  }
   renderHeader();
   const s = document.getElementById('smiley');
   if (s) { s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); }
-  const rect = s.getBoundingClientRect(); const t = (e && e.touches && e.touches[0]) || e;
-  const x = (t && t.clientX) || (rect.left + rect.width/2); const y = (t && t.clientY) || (rect.top + rect.height/2);
-  spawnFloat(x, y, '+' + fmt(gain)); saveState();
+  const rect = s ? s.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 };
+  const t = (e && e.touches && e.touches[0]) || e;
+  const x = (t && t.clientX) || (rect.left + rect.width/2);
+  const y = (t && t.clientY) || (rect.top + rect.height/2);
+  spawnFloat(x, y, '+' + fmt(gain));
+  // Пункт 5: анимка клика
+  if (state.clickAnimation === 'spiders' && state.animationsOwned.includes('spiders')) {
+    spawnSpiderBurst(x, y);
+  }
+  saveState();
 }
-function spawnFloat(x, y, text) { const el = document.createElement('div'); el.className = 'float-num'; el.textContent = text; el.style.left = x + 'px'; el.style.top = (y - 20) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 900); }
+function spawnFloat(x, y, text) {
+  const el = document.createElement('div'); el.className = 'float-num'; el.textContent = text;
+  el.style.left = x + 'px'; el.style.top = (y - 20) + 'px';
+  document.body.appendChild(el); setTimeout(() => el.remove(), 900);
+}
+/* Пункт 5: пауки */
+function spawnSpiderBurst(x, y) {
+  for (let i = 0; i < 5; i++) {
+    const el = document.createElement('div');
+    el.className = 'spider-burst';
+    el.textContent = '🕷';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 60 + Math.random() * 60;
+    el.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    el.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    el.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+  }
+}
 
 /* ---------- SHOP ---------- */
 function renderShop() {
   const html = [];
-  html.push(`<div class="section-title">💪 За клик</div>`); for (const u of CLICK_UPGRADES) html.push(upgradeCardHTML(u));
-  html.push(`<div class="section-title" style="margin-top:14px">⚡ В секунду</div>`); for (const u of CPS_UPGRADES) html.push(upgradeCardHTML(u));
+  html.push(`<div class="section-title">💪 За клик</div>`);
+  for (const u of CLICK_UPGRADES) html.push(upgradeCardHTML(u));
+  html.push(`<div class="section-title" style="margin-top:14px">⚡ В секунду</div>`);
+  for (const u of CPS_UPGRADES) html.push(upgradeCardHTML(u));
   html.push(`<div class="section-title" style="margin-top:14px">🗄️ Полка</div>`);
   const shelfPrice = getShelfPrice();
   html.push(`<div class="card"><div class="card-info"><div class="card-title">Доп. место на полке</div><div class="card-sub">Всего слотов: ${3 + state.shelfLevel} → ${4 + state.shelfLevel}</div></div><button class="btn" data-shelf="1" ${state.balance < shelfPrice ? 'disabled' : ''}>${fmt(shelfPrice)} 😃</button></div>`);
@@ -685,7 +838,10 @@ function renderShop() {
   content.querySelectorAll('[data-buy]').forEach(b => b.addEventListener('click', () => buyUpgrade(b.dataset.buy)));
   const sb = content.querySelector('[data-shelf]'); if (sb) sb.addEventListener('click', buyShelfSlot);
 }
-function upgradeCardHTML(u) { const lvl = state.upgrades[u.id] || 0; const price = getUpgradePrice(u); return `<div class="card"><div class="card-info"><div class="card-title">${u.name} ${lvl ? `<span style="opacity:0.7">(ур. ${lvl})</span>` : ''}</div><div class="card-sub">${u.desc}</div></div><button class="btn" data-buy="${u.id}" ${state.balance < price ? 'disabled' : ''}>${fmt(price)} 😃</button></div>`; }
+function upgradeCardHTML(u) {
+  const lvl = state.upgrades[u.id] || 0; const price = getUpgradePrice(u);
+  return `<div class="card"><div class="card-info"><div class="card-title">${u.name} ${lvl ? `<span style="opacity:0.7">(ур. ${lvl})</span>` : ''}</div><div class="card-sub">${u.desc}</div></div><button class="btn" data-buy="${u.id}" ${state.balance < price ? 'disabled' : ''}>${fmt(price)} 😃</button></div>`;
+}
 function buyUpgrade(id) {
   const u = [...CLICK_UPGRADES, ...CPS_UPGRADES].find(x => x.id === id); if (!u) return;
   const price = getUpgradePrice(u); if (state.balance < price) return;
@@ -694,63 +850,269 @@ function buyUpgrade(id) {
 }
 function buyShelfSlot() {
   const price = getShelfPrice(); if (state.balance < price) return;
-  state.balance -= price; state.shelfLevel += 1; state.shelf.push(null); vibrate('medium'); toast(`Полка расширена! Слотов: ${3 + state.shelfLevel}`); render();
+  state.balance -= price; state.shelfLevel += 1; state.shelf.push(null);
+  vibrate('medium'); toast(`Полка расширена! Слотов: ${3 + state.shelfLevel}`); render();
 }
 
-/* ---------- REWARDS ---------- */
-function renderRewards() {
-  const now = Date.now(); const DAY = 24 * 60 * 60 * 1000; const startOfToday = new Date(); startOfToday.setHours(0,0,0,0);
+/* ---------- SHELF ---------- */
+function itemMeta(s) { return SMILEYS[s] || HALLOWEEN_ITEMS[s]; }
+function itemTierCls(s) { if (HALLOWEEN_ITEMS[s]) return ''; const m = SMILEYS[s]; if (!m) return ''; if (m.tier === 'gold') return 'gold'; if (m.tier === 'legendary') return 'legendary'; return ''; }
+
+function renderShelf() {
+  const html = [];
+  html.push(`<div class="section-title">🗄️ Полка (${state.shelf.filter(Boolean).length}/${state.shelf.length})</div><div class="slots" id="slots">`);
+  state.shelf.forEach((slot, i) => {
+    if (slot) { const meta = itemMeta(slot); html.push(`<div class="slot filled" data-slot="${i}">${slot}<div class="buff-badge">${meta ? meta.label : ''}</div></div>`); }
+    else { html.push(`<div class="slot" data-slot="${i}"><span class="empty-label">пусто</span></div>`); }
+  });
+  html.push(`</div><div class="section-title" style="margin-top:14px">🎒 Смайлы (${state.inventory.length}) · долгий тап = статы</div>`);
+  if (state.inventory.length === 0) { html.push(`<div class="empty-msg">Пока пусто.<br>Открой кейс во вкладке «Кейсы»!</div>`); }
+  else {
+    html.push(`<div class="inventory">`);
+    state.inventory.forEach(s => {
+      const onShelf = state.shelf.includes(s); const meta = SMILEYS[s];
+      html.push(`<div class="inv-item ${onShelf?'on-shelf':''} ${itemTierCls(s)}" data-inv="${s}">${s}<div class="buff-badge">${meta ? meta.label : ''}</div></div>`);
+    });
+    html.push(`</div>`);
+  }
+  if (ENABLE_HALLOWEEN) {
+    const halItems = Object.keys(state.halloween.items).filter(k => state.halloween.items[k]);
+    html.push(`<div class="section-title" style="margin-top:14px">🎃 Хэллоуин-предметы (${halItems.length})</div>`);
+    if (halItems.length === 0) { html.push(`<div class="empty-msg">Пока пусто.<br>Постучи в дверь во вкладке «Ивент»!</div>`); }
+    else {
+      html.push(`<div class="inventory">`);
+      halItems.forEach(s => {
+        const onShelf = state.shelf.includes(s); const meta = HALLOWEEN_ITEMS[s];
+        html.push(`<div class="inv-item ${onShelf?'on-shelf':''}" data-inv="${s}" style="border-color:#ff8c00">${s}<div class="buff-badge">${meta.label}</div></div>`);
+      });
+      html.push(`</div>`);
+    }
+    if (state.halloween.passClaimed.includes(1)) {
+      const onShelf = state.shelf.includes('🎭');
+      html.push(`<div class="section-title" style="margin-top:14px">🎭 Предмет пасса</div><div class="inventory">`);
+      html.push(`<div class="inv-item ${onShelf?'on-shelf':''}" data-inv="🎭" style="border-color:#ffd700">🎭<div class="buff-badge">+300% клик/CPS/конфеты</div></div>`);
+      html.push(`</div>`);
+    }
+  }
+  content.innerHTML = html.join('');
+  content.querySelectorAll('[data-slot]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = +el.dataset.slot;
+      if (state.shelf[i]) { const removed = state.shelf[i]; state.shelf[i] = null; vibrate('light'); toast(`Снято с полки: ${removed}`); renderShelf(); renderHeader(); saveState(); }
+    });
+  });
+  content.querySelectorAll('[data-inv]').forEach(el => {
+    const s = el.dataset.inv; let longPressTimer = null; let longPressed = false;
+    const startPress = () => { longPressed = false; longPressTimer = setTimeout(() => { longPressed = true; vibrate('medium'); openSmileyModal(s); }, 600); };
+    const cancelPress = () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } };
+    const endPress = () => {
+      cancelPress(); if (longPressed) return;
+      const idx = state.shelf.indexOf(s);
+      if (idx !== -1) { state.shelf[idx] = null; vibrate('light'); toast(`Снято с полки: ${s}`); }
+      else { const free = state.shelf.indexOf(null); if (free === -1) { toast('Нет свободных мест на полке!'); return; } state.shelf[free] = s; vibrate('light'); toast(`Поставлено на полку: ${s}`); }
+      renderShelf(); renderHeader(); saveState();
+    };
+    el.addEventListener('mousedown', startPress); el.addEventListener('mouseup', endPress); el.addEventListener('mouseleave', cancelPress);
+    el.addEventListener('touchstart', startPress, { passive: true });
+    el.addEventListener('touchend', (e) => { e.preventDefault(); endPress(); });
+    el.addEventListener('touchcancel', cancelPress);
+    el.addEventListener('contextmenu', e => e.preventDefault());
+  });
+}
+function openSmileyModal(s) {
+  const onShelf = state.shelf.includes(s);
+  const hal = HALLOWEEN_ITEMS[s] || (s === '🎭' ? { name: 'Маска', label: '+300% клик/CPS/конфеты' } : null);
+  const sm = SMILEYS[s];
+  const meta = hal || sm;
+  let price = 0;
+  if (!hal && sm) {
+    if (sm.tier === 'normal') price = CASE_REFUND;
+    else if (sm.tier === 'gold') price = GOLD_CASE_REFUND;
+    else if (sm.tier === 'legendary') price = LEGENDARY_CASE_REFUND;
+    else price = THEMATIC_CASE_REFUND;
+    if (state.shelf.includes('🪙')) price = Math.floor(price * 1.5);
+  }
+  let buffHTML = '';
+  if (hal) { buffHTML = `<b>Баф:</b> ${hal.label}<br>`; }
+  else if (sm) { buffHTML = `<b>Баф:</b> ${sm.label}<br>`; if (sm.offline) buffHTML += `💤 Оффлайн ×${sm.offline.mul.toFixed(2)}, кап ${fmt(sm.offline.cap)}<br>`; if (sm.tier === 'gold') buffHTML += '<span style="color:#ffd700">⭐ Золотой</span><br>'; if (sm.tier === 'legendary') buffHTML += '<span style="color:#d97aff">🌟 Легендарный</span><br>'; if (sm.tier === 'thematic') buffHTML += '<span style="color:#9cf">🎭 Тематический</span><br>'; }
+  const bg = document.createElement('div'); bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal"><div class="modal-emoji">${s}</div><div class="modal-title">${hal ? (hal.name + ' · ' + (onShelf ? 'на полке' : 'в инвентаре')) : (onShelf ? 'На полке' : 'В инвентаре')}</div><div class="modal-desc">${buffHTML}</div><div class="modal-actions"><button class="btn" id="mPut">${onShelf ? 'Снять с полки' : 'Поставить на полку'}</button>${hal ? '' : `<button class="btn danger" id="mSell">Продать за ${fmt(price)} 😃</button>`}<button class="btn" id="mClose">Закрыть</button></div></div>`;
+  document.body.appendChild(bg);
+  bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
+  bg.querySelector('#mClose').addEventListener('click', () => bg.remove());
+  bg.querySelector('#mPut').addEventListener('click', () => {
+    if (onShelf) { const idx = state.shelf.indexOf(s); state.shelf[idx] = null; vibrate('light'); toast(`Снято: ${s}`); }
+    else { const free = state.shelf.indexOf(null); if (free === -1) { toast('Нет свободных мест!'); return; } state.shelf[free] = s; vibrate('light'); toast(`Поставлено: ${s}`); }
+    bg.remove(); renderShelf(); renderHeader(); saveState();
+  });
+  const sellBtn = bg.querySelector('#mSell');
+  if (sellBtn) sellBtn.addEventListener('click', () => {
+    if (onShelf) { toast('Сначала сними с полки!'); return; }
+    const idx = state.inventory.indexOf(s); if (idx === -1) return;
+    state.inventory.splice(idx, 1); state.balance += price;
+    vibrateNotification('success'); toast(`Продано: ${s} за ${fmt(price)} 😃`);
+    bg.remove(); renderShelf(); renderHeader(); saveState();
+  });
+}
+
+/* ---------- Пункт 1+2: BANK (Награды + Ежедневки + Копилка + Достижения + Коды) ---------- */
+function renderBank() {
+  const html = [];
+  html.push(`<div class="section-title">🏦 Банк</div>`);
+
+  // --- Копилка оффлайна ---
+  html.push(`<div class="section-title">🐷 Копилка оффлайна</div>`);
+  const capTotal = offlineCapTotal();
+  const mulTotal = offlineMulTotal();
+  const hasGhost = shelfBuffs().hasGhost;
+  const filled = state.pendingOffline;
+  const pct = capTotal > 0 ? Math.min(100, (filled / capTotal) * 100) : 0;
+  let sourcesHTML = '';
+  if (capTotal > 0) {
+    const sources = [];
+    const seen = {};
+    for (const slot of state.shelf) {
+      if (!slot) continue;
+      const meta = SMILEYS[slot];
+      if (meta && meta.offline && !seen[slot]) {
+        seen[slot] = true;
+        const m = meta.offline.mul * (shelfBuffs().hasVampire ? 2 : 1);
+        const c = meta.offline.cap * (shelfBuffs().hasVampire ? 2 : 1);
+        sources.push(`${slot} ×${m.toFixed(1)} CPS, кап ${fmt(c)}`);
+      }
+    }
+    sourcesHTML = sources.length ? sources.map(s => '· ' + s).join('<br>') : '';
+  } else {
+    sourcesHTML = `<span style="opacity:0.7">Поставь 😎/🏆/🦄/🧛 на полку</span>`;
+  }
+  html.push(`
+    <div class="piggy-card">
+      <div class="piggy-counter">${fmt(filled)} <small>/ ${capTotal > 0 ? fmt(capTotal) : '—'}</small></div>
+      <div class="piggy-bar"><div class="piggy-fill" style="width:${pct}%"></div></div>
+      <div class="piggy-sources">${sourcesHTML}${hasGhost ? '<br><span style="color:#ff9c9c">👻 Призрак блокирует оффлайн!</span>' : ''}</div>
+      <button class="btn big" id="piggyClaim" style="width:100%" ${filled <= 0 ? 'disabled' : ''}>Забрать ${fmt(filled)} 😃</button>
+    </div>
+  `);
+
+  // --- Ежедневные награды ---
+  html.push(`<div class="section-title" style="margin-top:14px">🎁 Ежедневные награды · серия: ${state.rewardDay}/7</div>`);
+  const now = Date.now();
+  const DAY = 24 * 60 * 60 * 1000;
+  const startOfToday = new Date(); startOfToday.setHours(0,0,0,0);
   const lastVisitDay = state.lastVisit ? (() => { const d = new Date(state.lastVisit); d.setHours(0,0,0,0); return d.getTime(); })() : 0;
-  const today = startOfToday.getTime(); if (lastVisitDay && today - lastVisitDay > DAY) state.rewardDay = 0; if (today !== lastVisitDay) state.lastVisit = today;
+  const today = startOfToday.getTime();
+  if (lastVisitDay && today - lastVisitDay > DAY) state.rewardDay = 0;
+  if (today !== lastVisitDay) state.lastVisit = today;
   const lastClaimDay = state.lastRewardClaim ? (() => { const d = new Date(state.lastRewardClaim); d.setHours(0,0,0,0); return d.getTime(); })() : 0;
   const canClaim = lastClaimDay !== today && state.rewardDay < REWARDS.length;
-  const html = []; html.push(`<div class="section-title">Ежедневные награды · серия: ${state.rewardDay}/7</div>`); html.push(`<div class="reward-grid">`);
-  for (let i = 0; i < REWARDS.length; i++) { const cls = []; if (i < state.rewardDay) cls.push('claimed'); if (i === state.rewardDay && canClaim) cls.push('today'); html.push(`<div class="reward-day ${cls.join(' ')}"><div class="day">День ${i+1}</div><div class="amt">${fmt(REWARDS[i])}</div></div>`); }
+  html.push(`<div class="reward-grid">`);
+  for (let i = 0; i < REWARDS.length; i++) {
+    const cls = []; if (i < state.rewardDay) cls.push('claimed'); if (i === state.rewardDay && canClaim) cls.push('today');
+    html.push(`<div class="reward-day ${cls.join(' ')}"><div class="day">День ${i+1}</div><div class="amt">${fmt(REWARDS[i])}</div></div>`);
+  }
   html.push(`</div>`);
-  if (state.rewardDay >= REWARDS.length) { html.push(`<div class="empty-msg">Все награды получены! 🎉<br>Заходи завтра, серия обновится.</div>`); }
-  else if (canClaim) { html.push(`<button class="btn big" id="claimBtn" style="width:100%">Забрать награду дня ${state.rewardDay+1}: ${fmt(REWARDS[state.rewardDay])} 😃</button>`); }
-  else { const msLeft = startOfToday.getTime() + DAY - now; const h = Math.floor(msLeft / 3600000); const m = Math.floor((msLeft % 3600000) / 60000); html.push(`<div class="empty-msg">Уже получено сегодня.<br>Следующая через ${h}ч ${m}м.</div>`); }
-  content.innerHTML = html.join(''); const cb = document.getElementById('claimBtn'); if (cb) cb.addEventListener('click', claimReward);
-}
-function claimReward() {
-  if (state.rewardDay >= REWARDS.length) return;
-  const amount = REWARDS[state.rewardDay]; state.balance += amount; state.rewardDay += 1; state.lastRewardClaim = Date.now();
-  vibrateNotification('success'); toast(`+${fmt(amount)} 😃 за день ${state.rewardDay}!`); render();
-}
+  if (state.rewardDay >= REWARDS.length) html.push(`<div class="empty-msg">Все награды получены! 🎉<br>Заходи завтра, серия обновится.</div>`);
+  else if (canClaim) html.push(`<button class="btn big" id="claimBtn" style="width:100%;margin-bottom:14px">Забрать награду дня ${state.rewardDay+1}: ${fmt(REWARDS[state.rewardDay])} 😃</button>`);
+  else { const msLeft = startOfToday.getTime() + DAY - now; const h = Math.floor(msLeft / 3600000); const m = Math.floor((msLeft % 3600000) / 60000); html.push(`<div class="empty-msg" style="margin-bottom:14px">Уже получено сегодня.<br>Следующая через ${h}ч ${m}м.</div>`); }
 
-/* ---------- DAILY QUESTS ---------- */
-function renderDaily() {
-  ensureDaily(); const html = [];
-  html.push(`<div class="section-title">📅 Ежедневные задания</div>`);
-  html.push(`<div class="card-sub" style="padding:0 4px 10px;opacity:0.85">Сброс в полночь. 3 задания в день.</div>`);
+  // --- Ежедневные задания ---
+  ensureDaily();
+  html.push(`<div class="section-title" style="margin-top:14px">📅 Ежедневные задания</div>`);
   for (const q of state.daily.quests) {
     const qDef = DAILY_QUESTS_POOL.find(x => x.id === q.id); if (!qDef) continue;
     const prog = state.daily.progress[q.id] || 0; const done = prog >= qDef.goal; const claimed = state.daily.claimed[q.id];
     let rewardStr = ''; if (qDef.reward.smiles) rewardStr += `${fmt(qDef.reward.smiles)} 😃`; if (qDef.reward.candy) rewardStr += ` +${qDef.reward.candy} 🍬`;
     html.push(`<div class="quest-item ${done ? 'done' : ''}"><div class="quest-info"><div class="quest-title">${qDef.title}</div><div class="quest-progress">${Math.min(prog, qDef.goal)} / ${qDef.goal}</div><div class="quest-reward">Награда: ${rewardStr}</div></div>${claimed ? '<div style="font-size:20px">✓</div>' : (done ? `<button class="btn" data-qclaim="${q.id}">Забрать</button>` : '')}</div>`);
   }
+
+  // --- Достижения ---
+  html.push(`<div class="section-title" style="margin-top:14px">🏅 Достижения (${Object.keys(state.achievements).length}/${ACHIEVEMENTS.length})</div>`);
+  for (const a of ACHIEVEMENTS) {
+    const done = !!state.achievements[a.id]; const cur = state.stats[a.stat] || 0;
+    let rw = ''; if (a.reward.smiles) rw += `${fmt(a.reward.smiles)} 😃`; if (a.reward.candy) rw += ` +${a.reward.candy} 🍬`; if (a.reward.smiley) rw += ` ${a.reward.smiley}`;
+    html.push(`<div class="ach-item ${done ? 'done' : ''}"><div class="ach-icon">${a.icon}</div><div class="ach-info"><div class="ach-title">${a.title}</div><div class="ach-desc">${a.desc}</div><div class="ach-progress">${done ? '✓ Получено' : `${Math.min(cur, a.goal)} / ${a.goal}`} · ${rw}</div></div></div>`);
+  }
+
+  // --- Коды ---
+  html.push(`<div class="section-title" style="margin-top:14px">🔑 Коды</div>`);
+  html.push(`<div class="codes-row"><input id="codeInput" type="text" placeholder="код..." autocomplete="off"><button class="btn" id="codeBtn">Активировать</button></div>`);
+
   content.innerHTML = html.join('');
-  content.querySelectorAll('[data-qclaim]').forEach(b => { b.addEventListener('click', () => { const qid = b.dataset.qclaim; const qDef = DAILY_QUESTS_POOL.find(x => x.id === qid); if (!qDef || state.daily.claimed[qid]) return; state.daily.claimed[qid] = true; vibrateNotification('success'); grantReward(qDef.reward, `✅ Задание: ${qDef.title}`); renderDaily(); saveState(); }); });
+
+  const pc = document.getElementById('piggyClaim');
+  if (pc) pc.addEventListener('click', () => {
+    if (state.pendingOffline <= 0) return;
+    const amount = state.pendingOffline;
+    state.balance += amount; state.pendingOffline = 0;
+    vibrateNotification('success'); toast(`+${fmt(amount)} 😃 из копилки`);
+        render();
+  });
+
+  const cb = document.getElementById('claimBtn');
+  if (cb) cb.addEventListener('click', claimReward);
+
+  content.querySelectorAll('[data-qclaim]').forEach(b => {
+    b.addEventListener('click', () => {
+      const qid = b.dataset.qclaim;
+      const qDef = DAILY_QUESTS_POOL.find(x => x.id === qid);
+      if (!qDef || state.daily.claimed[qid]) return;
+      state.daily.claimed[qid] = true;
+      vibrateNotification('success');
+      grantReward(qDef.reward, `✅ Задание: ${qDef.title}`);
+      renderBank(); saveState();
+    });
+  });
+
+  const input = document.getElementById('codeInput');
+  const btn = document.getElementById('codeBtn');
+  if (btn) btn.addEventListener('click', tryCode);
+  if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') tryCode(); });
 }
 
-/* ---------- ACHIEVEMENTS ---------- */
-function renderAchievements() {
-  const html = []; html.push(`<div class="section-title">🏅 Достижения (${Object.keys(state.achievements).length}/${ACHIEVEMENTS.length})</div>`);
-  for (const a of ACHIEVEMENTS) { const done = !!state.achievements[a.id]; const cur = state.stats[a.stat] || 0; let rw = ''; if (a.reward.smiles) rw += `${fmt(a.reward.smiles)} 😃`; if (a.reward.candy) rw += ` +${a.reward.candy} 🍬`; if (a.reward.smiley) rw += ` ${a.reward.smiley}`; html.push(`<div class="ach-item ${done ? 'done' : ''}"><div class="ach-icon">${a.icon}</div><div class="ach-info"><div class="ach-title">${a.title}</div><div class="ach-desc">${a.desc}</div><div class="ach-progress">${done ? '✓ Получено' : `${Math.min(cur, a.goal)} / ${a.goal}`} · ${rw}</div></div></div>`); }
-  content.innerHTML = html.join('');
+function claimReward() {
+  if (state.rewardDay >= REWARDS.length) return;
+  const amount = REWARDS[state.rewardDay];
+  state.balance += amount;
+  state.rewardDay += 1;
+  state.lastRewardClaim = Date.now();
+  vibrateNotification('success');
+  toast(`+${fmt(amount)} 😃 за день ${state.rewardDay}!`);
+  render();
 }
 
-/* ---------- CODES ---------- */
-function renderCodes() {
-  content.innerHTML = `<div class="section-title">Введите код</div><div class="codes-row"><input id="codeInput" type="text" placeholder="код..." autocomplete="off"><button class="btn" id="codeBtn">Активировать</button></div>`;
-  const input = document.getElementById('codeInput'); const btn = document.getElementById('codeBtn'); btn.addEventListener('click', tryCode); input.addEventListener('keydown', e => { if (e.key === 'Enter') tryCode(); });
-}
 function tryCode() {
-  const input = document.getElementById('codeInput'); const code = (input.value || '').trim(); if (!code) return;
-  const key = code.toLowerCase(); const found = Object.keys(CODES).find(k => k.toLowerCase() === key);
+  const input = document.getElementById('codeInput');
+  const code = (input.value || '').trim();
+  if (!code) return;
+  const key = code.toLowerCase();
+  const found = Object.keys(CODES).find(k => k.toLowerCase() === key);
   if (!found) { toast('❌ Неверный код'); input.value = ''; return; }
   if (state.usedCodes.includes(found)) { toast('⚠️ Код уже использован'); input.value = ''; return; }
-  state.usedCodes.push(found); state.balance += CODES[found].amount; vibrateNotification('success'); toast(`✅ +${fmt(CODES[found].amount)} 😃`); input.value = ''; render();
+  state.usedCodes.push(found);
+  state.balance += CODES[found].amount;
+  vibrateNotification('success');
+  toast(`✅ +${fmt(CODES[found].amount)} 😃`);
+  input.value = '';
+  render();
+}
+
+/* ---------- GAMES (Краш + Крафт) ---------- */
+function renderGames() {
+  content.innerHTML = `
+    <div class="section-title">🎮 Игры</div>
+    <div class="card" style="flex-direction:column;align-items:stretch">
+      <div class="card-title" style="text-align:center;font-size:18px;margin-bottom:6px">🚀 Краш</div>
+      <div class="card-sub" style="text-align:center;margin-bottom:10px">Множитель растёт — забери вовремя!</div>
+      <button class="btn big" id="goCrash" style="width:100%">Играть в Краш</button>
+    </div>
+    <div class="card" style="flex-direction:column;align-items:stretch">
+      <div class="card-title" style="text-align:center;font-size:18px;margin-bottom:6px">⚒️ Крафт (QTE)</div>
+      <div class="card-sub" style="text-align:center;margin-bottom:10px">3 обычных смайла → 1 редкий. Нужно 7+ попаданий из 10.</div>
+      <button class="btn big" id="goCraft" style="width:100%">Открыть Крафт</button>
+    </div>
+  `;
+  document.getElementById('goCrash').addEventListener('click', () => { currentTab = 'crash'; renderTabs(); applyTheme(); renderCrash(); });
+  document.getElementById('goCraft').addEventListener('click', () => { currentTab = 'craft'; renderTabs(); applyTheme(); renderCraft(); });
 }
 
 /* ---------- CASES ---------- */
@@ -765,7 +1127,7 @@ function renderCases() {
     <div class="section-title" style="margin-top:14px">🎭 Тематический кейс</div>
     <div class="card" style="flex-direction:column;align-items:stretch"><div class="case-visual">🎭</div><div class="drop-pool">${THEMATIC_DROPS.map(d => `<span>${d.s}</span>`).join('')}</div><div class="card-sub" style="text-align:center;margin-bottom:10px">Повторка → возврат ${fmt(THEMATIC_CASE_REFUND)} 😃</div><button class="btn big" id="openThematic" style="width:100%">Открыть за ${fmt(getCasePrice('thematic'))} 😃</button></div>
     <div class="section-title" style="margin-top:14px">🎨 Кейс с темами</div>
-    <div class="card" style="flex-direction:column;align-items:stretch"><div class="case-visual">🎨</div><div class="drop-pool"><span>❄️</span><span>🍁</span><span>🎃</span><span>🌙</span></div><div class="card-sub" style="text-align:center;margin-bottom:10px">Повторка → возврат ${fmt(THEME_CASE_REFUND)} 😃</div><button class="btn big" id="openTheme" style="width:100%">Открыть за ${fmt(getCasePrice('theme'))} 😃</button></div>
+    <div class="card" style="flex-direction:column;align-items:stretch"><div class="case-visual">🎨</div><div class="drop-pool"><span>❄️</span><span>🍁</span><span>🌙</span></div><div class="card-sub" style="text-align:center;margin-bottom:10px">Повторка → возврат ${fmt(THEME_CASE_REFUND)} 😃</div><button class="btn big" id="openTheme" style="width:100%">Открыть за ${fmt(getCasePrice('theme'))} 😃</button></div>
   `;
   document.getElementById('openNormal').addEventListener('click', () => openCase('normal'));
   document.getElementById('openGold').addEventListener('click', () => openCase('gold'));
@@ -775,21 +1137,44 @@ function renderCases() {
 }
 function pickByWeight(drops) { const total = drops.reduce((a, d) => a + d.w, 0); let r = Math.random() * total; for (const d of drops) { if (r < d.w) return d.s; r -= d.w; } return drops[drops.length - 1].s; }
 function openCase(kind) {
-  if (caseAnimating) return; const price = getCasePrice(kind); if (state.balance < price) { toast('Недостаточно смайлов'); return; }
-  caseAnimating = true; state.balance -= price; renderHeader(); vibrate('rigid');
+  if (caseAnimating) return;
+  const price = getCasePrice(kind);
+  if (state.balance < price) { toast('Недостаточно смайлов'); return; }
+  caseAnimating = true;
+  state.balance -= price; renderHeader(); vibrate('rigid');
   const visualMap = { normal: '🎁', gold: '💎', legendary: '🌟', thematic: '🎭', theme: '🎨' };
   content.innerHTML = `<div class="section-title">📦 Открываем...</div><div class="case-opening">${visualMap[kind]}</div>`;
   setTimeout(() => {
     let resultHTML = '';
     if (kind === 'theme') {
+      // Пункт 4: в пуле только winter/autumn/dark
       const notOwned = THEMES.filter(t => !state.themesOwned.includes(t));
-      if (notOwned.length === 0) { const refund = getCaseRefund('theme'); state.balance += refund; const dup = THEMES[Math.floor(Math.random()*THEMES.length)]; resultHTML = `<div class="case-opening">🎨</div><div class="card" style="flex-direction:column;align-items:center"><div class="card-title">Все темы уже есть!</div><div class="card-sub">Возврат: +${fmt(refund)} 😃</div></div>`; }
-      else { const theme = notOwned[Math.floor(Math.random()*notOwned.length)]; state.themesOwned.push(theme); resultHTML = `<div class="case-opening">🎨</div><div class="card" style="flex-direction:column;align-items:center"><div class="card-title">Новая тема: ${THEME_NAMES[theme]}</div><div class="card-sub">Доступна во вкладке «Темы»</div></div>`; toast(`🎨 Тема: ${THEME_NAMES[theme]}`); vibrateNotification('success'); }
+      if (notOwned.length === 0) {
+        const refund = getCaseRefund('theme');
+        state.balance += refund;
+        resultHTML = `<div class="case-opening">🎨</div><div class="card" style="flex-direction:column;align-items:center"><div class="card-title">Все темы уже есть!</div><div class="card-sub">Возврат: +${fmt(refund)} 😃</div></div>`;
+      } else {
+        const theme = notOwned[Math.floor(Math.random()*notOwned.length)];
+        state.themesOwned.push(theme);
+        resultHTML = `<div class="case-opening">🎨</div><div class="card" style="flex-direction:column;align-items:center"><div class="card-title">Новая тема: ${THEME_NAMES[theme]}</div><div class="card-sub">Доступна во вкладке «Настройки» → Темы</div></div>`;
+        toast(`🎨 Тема: ${THEME_NAMES[theme]}`); vibrateNotification('success');
+      }
     } else {
       const drops = { normal: NORMAL_DROPS, gold: GOLD_DROPS, legendary: LEGENDARY_DROPS, thematic: THEMATIC_DROPS }[kind];
-      const roll = pickByWeight(drops); const isDup = state.inventory.includes(roll); let refund = getCaseRefund(kind); if (shelfBuffs().hasBlood) refund *= 2;
-      if (isDup) { state.balance += refund; resultHTML = `<div class="case-opening">${roll}</div><div class="card" style="flex-direction:column;align-items:center"><div class="card-title">Повторка! ${roll}</div><div class="card-sub">Возврат: +${fmt(refund)} 😃</div></div>`; vibrateNotification('warning'); }
-      else { state.inventory.push(roll); const meta = SMILEYS[roll]; resultHTML = `<div class="case-opening">${roll}</div><div class="card" style="flex-direction:column;align-items:center"><div class="card-title">Новый смайл: ${roll}</div><div class="card-sub">Баф: ${meta.label}</div>${meta.offline ? `<div class="card-sub">💤 Оффлайн ×${meta.offline.mul.toFixed(2)}, кап ${fmt(meta.offline.cap)}</div>` : ''}</div>`; toast(`Новый смайл ${roll}!`); vibrateNotification('success'); }
+      const roll = pickByWeight(drops);
+      const isDup = state.inventory.includes(roll);
+      let refund = getCaseRefund(kind);
+      if (shelfBuffs().hasBlood) refund *= 2;
+      if (isDup) {
+        state.balance += refund;
+        resultHTML = `<div class="case-opening">${roll}</div><div class="card" style="flex-direction:column;align-items:center"><div class="card-title">Повторка! ${roll}</div><div class="card-sub">Возврат: +${fmt(refund)} 😃</div></div>`;
+        vibrateNotification('warning');
+      } else {
+        state.inventory.push(roll);
+        const meta = SMILEYS[roll];
+        resultHTML = `<div class="case-opening">${roll}</div><div class="card" style="flex-direction:column;align-items:center"><div class="card-title">Новый смайл: ${roll}</div><div class="card-sub">Баф: ${meta.label}</div>${meta.offline ? `<div class="card-sub">💤 Оффлайн ×${meta.offline.mul.toFixed(2)}, кап ${fmt(meta.offline.cap)}</div>` : ''}</div>`;
+        toast(`Новый смайл ${roll}!`); vibrateNotification('success');
+      }
     }
     bumpStat('cases'); bumpDaily('dCases');
     content.innerHTML = `<div class="section-title">📦 Результат</div>${resultHTML}<button class="btn big" id="againBtn" style="width:100%;margin-top:10px">Ещё раз</button><button class="btn" id="backBtn" style="width:100%;margin-top:8px">Назад в кейсы</button>`;
@@ -799,107 +1184,21 @@ function openCase(kind) {
   }, 700);
 }
 
-/* ---------- SHELF ---------- */
-function itemMeta(s) { return SMILEYS[s] || HALLOWEEN_ITEMS[s]; }
-function itemTierCls(s) { if (HALLOWEEN_ITEMS[s]) return ''; const m = SMILEYS[s]; if (!m) return ''; if (m.tier === 'gold') return 'gold'; if (m.tier === 'legendary') return 'legendary'; return ''; }
-
-function renderShelf() {
-  const html = []; html.push(`<div class="section-title">🗄️ Полка (${state.shelf.filter(Boolean).length}/${state.shelf.length})</div><div class="slots" id="slots">`);
-  state.shelf.forEach((slot, i) => { if (slot) { const meta = itemMeta(slot); html.push(`<div class="slot filled" data-slot="${i}">${slot}<div class="buff-badge">${meta.label}</div></div>`); } else { html.push(`<div class="slot" data-slot="${i}"><span class="empty-label">пусто</span></div>`); } });
-  html.push(`</div><div class="section-title" style="margin-top:14px">🎒 Смайлы (${state.inventory.length}) · долгий тап = статы</div>`);
-  if (state.inventory.length === 0) { html.push(`<div class="empty-msg">Пока пусто.<br>Открой кейс во вкладке «Кейсы»!</div>`); }
-  else { html.push(`<div class="inventory">`); state.inventory.forEach(s => { const onShelf = state.shelf.includes(s); const meta = SMILEYS[s]; html.push(`<div class="inv-item ${onShelf?'on-shelf':''} ${itemTierCls(s)}" data-inv="${s}">${s}<div class="buff-badge">${meta.label}</div></div>`); }); html.push(`</div>`); }
-  if (ENABLE_HALLOWEEN) {
-    const halItems = Object.keys(state.halloween.items); html.push(`<div class="section-title" style="margin-top:14px">🎃 Хэллоуин-предметы (${halItems.length})</div>`);
-    if (halItems.length === 0) { html.push(`<div class="empty-msg">Пока пусто.<br>Постучи в дверь во вкладке «Ивент»!</div>`); }
-    else { html.push(`<div class="inventory">`); halItems.forEach(s => { const onShelf = state.shelf.includes(s); const meta = HALLOWEEN_ITEMS[s]; html.push(`<div class="inv-item ${onShelf?'on-shelf':''}" data-inv="${s}" style="border-color:#ff8c00">${s}<div class="buff-badge">${meta.label}</div></div>`); }); html.push(`</div>`); }
-  }
-  content.innerHTML = html.join('');
-  content.querySelectorAll('[data-slot]').forEach(el => { el.addEventListener('click', () => { const i = +el.dataset.slot; if (state.shelf[i]) { const removed = state.shelf[i]; state.shelf[i] = null; vibrate('light'); toast(`Снято с полки: ${removed}`); renderShelf(); renderHeader(); saveState(); } }); });
-  content.querySelectorAll('[data-inv]').forEach(el => {
-    const s = el.dataset.inv; let longPressTimer = null; let longPressed = false;
-    const startPress = () => { longPressed = false; longPressTimer = setTimeout(() => { longPressed = true; vibrate('medium'); openSmileyModal(s); }, 600); };
-    const cancelPress = () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } };
-    const endPress = () => { cancelPress(); if (longPressed) return; const idx = state.shelf.indexOf(s); if (idx !== -1) { state.shelf[idx] = null; vibrate('light'); toast(`Снято с полки: ${s}`); } else { const free = state.shelf.indexOf(null); if (free === -1) { toast('Нет свободных мест на полке!'); return; } state.shelf[free] = s; vibrate('light'); toast(`Поставлено на полку: ${s}`); } renderShelf(); renderHeader(); saveState(); };
-    el.addEventListener('mousedown', startPress); el.addEventListener('mouseup', endPress); el.addEventListener('mouseleave', cancelPress);
-    el.addEventListener('touchstart', startPress, { passive: true }); el.addEventListener('touchend', (e) => { e.preventDefault(); endPress(); }); el.addEventListener('touchcancel', cancelPress); el.addEventListener('contextmenu', e => e.preventDefault());
-  });
-}
-function openSmileyModal(s) {
-  const onShelf = state.shelf.includes(s); const hal = HALLOWEEN_ITEMS[s]; const sm = SMILEYS[s]; const meta = hal || sm; let price = 0;
-  if (!hal) { if (sm.tier === 'normal') price = CASE_REFUND; else if (sm.tier === 'gold') price = GOLD_CASE_REFUND; else if (sm.tier === 'legendary') price = LEGENDARY_CASE_REFUND; else price = THEMATIC_CASE_REFUND; if (state.shelf.includes('🪙')) price = Math.floor(price * 1.5); }
-  let buffHTML = '';
-  if (hal) { buffHTML = `<b>Баф:</b> ${hal.label}<br>`; if (hal.buff.clickMul) buffHTML += `клик: ${hal.buff.clickMul > 0 ? '+' : ''}${Math.round(hal.buff.clickMul*100)}%<br>`; if (hal.buff.cpsMul) buffHTML += `CPS: ${hal.buff.cpsMul > 0 ? '+' : ''}${Math.round(hal.buff.cpsMul*100)}%<br>`; }
-  else { buffHTML = `<b>Баф:</b> ${sm.label}<br>`; if (sm.offline) buffHTML += `💤 Оффлайн ×${sm.offline.mul.toFixed(2)}, кап ${fmt(sm.offline.cap)}<br>`; if (sm.tier === 'gold') buffHTML += '<span style="color:#ffd700">⭐ Золотой</span><br>'; if (sm.tier === 'legendary') buffHTML += '<span style="color:#d97aff">🌟 Легендарный</span><br>'; if (sm.tier === 'thematic') buffHTML += '<span style="color:#9cf">🎭 Тематический</span><br>'; }
-  const bg = document.createElement('div'); bg.className = 'modal-bg';
-  bg.innerHTML = `<div class="modal"><div class="modal-emoji">${s}</div><div class="modal-title">${hal ? (hal.name + ' · ' + (onShelf ? 'на полке' : 'в инвентаре')) : (onShelf ? 'На полке' : 'В инвентаре')}</div><div class="modal-desc">${buffHTML}</div><div class="modal-actions"><button class="btn" id="mPut">${onShelf ? 'Снять с полки' : 'Поставить на полку'}</button>${hal ? '' : `<button class="btn danger" id="mSell">Продать за ${fmt(price)} 😃</button>`}<button class="btn" id="mClose">Закрыть</button></div></div>`;
-  document.body.appendChild(bg); bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); }); bg.querySelector('#mClose').addEventListener('click', () => bg.remove());
-  bg.querySelector('#mPut').addEventListener('click', () => { if (onShelf) { const idx = state.shelf.indexOf(s); state.shelf[idx] = null; vibrate('light'); toast(`Снято: ${s}`); } else { const free = state.shelf.indexOf(null); if (free === -1) { toast('Нет свободных мест!'); return; } state.shelf[free] = s; vibrate('light'); toast(`Поставлено: ${s}`); } bg.remove(); renderShelf(); renderHeader(); saveState(); });
-  const sellBtn = bg.querySelector('#mSell'); if (sellBtn) sellBtn.addEventListener('click', () => { if (onShelf) { toast('Сначала сними с полки!'); return; } const idx = state.inventory.indexOf(s); if (idx === -1) return; state.inventory.splice(idx, 1); state.balance += price; vibrateNotification('success'); toast(`Продано: ${s} за ${fmt(price)} 😃`); bg.remove(); renderShelf(); renderHeader(); saveState(); });
-}
-
-/* ---------- CRAFT (QTE) ---------- */
-let craftSession = null;
-function renderCraft() {
-  const normalCount = state.inventory.filter(s => SMILEYS[s] && SMILEYS[s].tier === 'normal').length; const canCraft = normalCount >= CRAFT_REQUIRED.count;
-  const html = []; html.push(`<div class="section-title">⚒️ Крафт смайлов</div>`);
-  html.push(`<div class="craft-info">Нужно: <b>${CRAFT_REQUIRED.count} обычных смайла</b> (😆😄🙂)<br>У тебя: ${normalCount} обычных<br>Награда: случайный смайл (золотой / легендарный / тематический)<br><b>Провал → смайлы не тратятся</b></div>`);
-  html.push(`<div class="qte-status" id="qteStatus">${canCraft ? 'Готов к крафту!' : `Не хватает обычных смайлов (${normalCount}/${CRAFT_REQUIRED.count})`}</div>`);
-  html.push(`<div class="craft-area" id="craftArea"></div>`);
-  html.push(`<button class="btn big" id="craftBtn" style="width:100%" ${!canCraft ? 'disabled' : ''}>Начать QTE (${CRAFT_REQUIRED.count} обычных → 1 редкий)</button>`);
-  content.innerHTML = html.join(''); document.getElementById('craftBtn').addEventListener('click', startCraft);
-}
-function startCraft() {
-  const normalItems = state.inventory.filter(s => SMILEYS[s] && SMILEYS[s].tier === 'normal'); if (normalItems.length < CRAFT_REQUIRED.count) { toast('Не хватает смайлов'); return; }
-  craftSession = { round: 0, total: 10, hits: 0, startTime: 0, targets: [] }; const area = document.getElementById('craftArea'); const status = document.getElementById('qteStatus'); if (!area || !status) return;
-  area.innerHTML = ''; status.textContent = 'Приготовься...'; setTimeout(() => nextCraftRound(), 400);
-}
-function nextCraftRound() {
-  if (!craftSession) return; if (craftSession.round >= craftSession.total) { finishCraft(); return; }
-  craftSession.round++; const area = document.getElementById('craftArea'); const status = document.getElementById('qteStatus'); if (!area || !status) { craftSession = null; return; }
-  status.textContent = `Раунд ${craftSession.round} / ${craftSession.total} · Попаданий: ${craftSession.hits}`;
-  const rect = area.getBoundingClientRect(); const size = 70; const x = Math.random() * (rect.width - size); const y = Math.random() * (rect.height - size);
-  const target = document.createElement('div'); target.className = 'qte-target'; target.style.left = x + 'px'; target.style.top = y + 'px'; target.textContent = craftSession.round;
-  let reacted = false; const timeLimit = 1200 - craftSession.round * 50;
-  const timeout = setTimeout(() => { if (reacted) return; reacted = true; target.remove(); setTimeout(() => nextCraftRound(), 200); }, Math.max(500, timeLimit));
-  target.addEventListener('click', () => { if (reacted) return; reacted = true; clearTimeout(timeout); craftSession.hits++; target.classList.add('hit'); vibrate('light'); setTimeout(() => { target.remove(); nextCraftRound(); }, 200); });
-  area.innerHTML = ''; area.appendChild(target);
-}
-function finishCraft() {
-  const hits = craftSession.hits; const total = craftSession.total; const success = hits >= 7; craftSession = null;
-  if (success) {
-    let need = CRAFT_REQUIRED.count; for (let i = state.inventory.length - 1; i >= 0 && need > 0; i--) { const s = state.inventory[i]; if (SMILEYS[s] && SMILEYS[s].tier === 'normal') { state.inventory.splice(i, 1); need--; } }
-    const rarity = CRAFT_RARITY[Math.floor(Math.random() * CRAFT_RARITY.length)]; let pool; if (rarity === 'gold') pool = GOLD_SMILEYS; else if (rarity === 'legendary') pool = LEGENDARY_SMILEYS; else pool = THEMATIC_SMILEYS;
-    const drop = pool[Math.floor(Math.random() * pool.length)]; const isDup = state.inventory.includes(drop);
-    if (isDup) { state.balance += THEMATIC_CASE_REFUND; bumpStat('crafts'); bumpDaily('dCrafts'); vibrateNotification('warning'); toast(`Крафт: дубликат ${drop} → +${fmt(THEMATIC_CASE_REFUND)} 😃`); }
-    else { state.inventory.push(drop); bumpStat('crafts'); bumpDaily('dCrafts'); vibrateNotification('success'); toast(`✅ Крафт: ${drop}!`); }
-    saveState();
-  } else { vibrateNotification('error'); toast(`❌ Провал: ${hits}/${total} (нужно 7). Смайлы не тратятся.`); }
-  renderCraft(); renderHeader();
-}
-
-/* ---------- THEMES ---------- */
-function renderThemes() {
-  const html = []; html.push(`<div class="section-title">🎨 Темы оформления</div><div class="theme-grid">`);
-  const defActive = state.activeTheme === 'default' || !state.activeTheme;
-  html.push(`<div class="theme-card theme-default-preview ${defActive ? 'active' : ''}" data-theme="default"><div class="big-emoji">💧</div><div>Голубая</div></div>`);
-  for (const t of THEMES) { const owned = state.themesOwned.includes(t); const active = state.activeTheme === t; const previewCls = `theme-${t}-preview`; html.push(`<div class="theme-card ${previewCls} ${active ? 'active' : ''} ${owned ? '' : 'locked'}" data-theme="${t}"><div class="big-emoji">${THEME_NAMES[t].split(' ')[0]}</div><div>${THEME_NAMES[t].split(' ').slice(1).join(' ')}</div>${owned ? '' : '<div style="font-size:10px;opacity:0.8">не куплена</div>'}</div>`); }
-  html.push(`</div><div class="card-sub" style="text-align:center;opacity:0.8;padding:8px">Купить темы можно в кейсе с темами (вкладка «Кейсы»)</div>`);
-  content.innerHTML = html.join('');
-  content.querySelectorAll('[data-theme]').forEach(el => { el.addEventListener('click', () => { const t = el.dataset.theme; if (t === 'default') { state.activeTheme = 'default'; } else { if (!state.themesOwned.includes(t)) { toast('Тема не куплена!'); return; } state.activeTheme = t; } vibrate('medium'); toast(`Тема: ${THEME_NAMES[t]}`); render(); }); });
-}
-
 /* ---------- CRASH ---------- */
 let crash = { active: false, bet: 0, mult: 1, crashAt: 0, rafId: null, startTime: 0, points: [], crashed: false };
 function renderCrash() {
-  const hist = state.crashHistory.slice(-10); const histHTML = hist.length ? hist.map(m => `<span class="${m >= 2 ? 'high' : 'low'}">${m.toFixed(2)}x</span>`).join('') : '<span style="opacity:0.6;border-color:transparent">пока нет раундов</span>';
+  const hist = state.crashHistory.slice(-10);
+  const histHTML = hist.length ? hist.map(m => `<span class="${m >= 2 ? 'high' : 'low'}">${m.toFixed(2)}x</span>`).join('') : '<span style="opacity:0.6;border-color:transparent">пока нет раундов</span>';
   content.innerHTML = `<div class="section-title">🚀 Краш · история</div><div class="crash-history">${histHTML}</div><div class="crash-chart-wrap"><canvas id="crashCanvas"></canvas><div class="crash-mult" id="crashMult">1.00x</div></div><div class="bet-input-row"><input id="crashBet" type="number" min="100" value="${state.quickBets[0]}" placeholder="ставка"></div><div class="quick-bets">${state.quickBets.map((v,i) => `<button class="btn" data-qb="${i}">${fmt(v)}</button>`).join('')}</div><button class="btn big" id="crashBtn" style="width:100%;margin-bottom:8px">Ставка</button><div class="card-sub" style="text-align:center;padding:0 8px">Ставка сгорает при крахе. RTP ~98%.</div>`;
-  const betInput = document.getElementById('crashBet'); document.querySelectorAll('[data-qb]').forEach(b => { b.addEventListener('click', () => { betInput.value = state.quickBets[+b.dataset.qb]; vibrate('light'); }); });
-  document.getElementById('crashBtn').addEventListener('click', () => { if (crash.active) cashOut(); else startCrash(); }); drawCrashChart(); updateCrashBtn();
+  const betInput = document.getElementById('crashBet');
+  document.querySelectorAll('[data-qb]').forEach(b => { b.addEventListener('click', () => { betInput.value = state.quickBets[+b.dataset.qb]; vibrate('light'); }); });
+  document.getElementById('crashBtn').addEventListener('click', () => { if (crash.active) cashOut(); else startCrash(); });
+  drawCrashChart(); updateCrashBtn();
 }
 function updateCrashBtn() { const btn = document.getElementById('crashBtn'); if (!btn) return; if (crash.active) btn.textContent = `Забрать ${fmt(crash.bet * crash.mult)} 😃 (${crash.mult.toFixed(2)}x)`; else btn.textContent = 'Ставка'; }
 function drawCrashChart() {
-  const canvas = document.getElementById('crashCanvas'); if (!canvas) return; const wrap = canvas.parentElement; const w = wrap.clientWidth - 20; const h = 180;
+  const canvas = document.getElementById('crashCanvas'); if (!canvas) return;
+  const wrap = canvas.parentElement; const w = wrap.clientWidth - 20; const h = 180;
   canvas.width = w * 2; canvas.height = h * 2; canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
   const ctx = canvas.getContext('2d'); ctx.scale(2, 2); ctx.clearRect(0, 0, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
@@ -910,97 +1209,435 @@ function drawCrashChart() {
   ctx.strokeStyle = crash.crashed ? '#ff6b6b' : '#ffffff'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.beginPath();
   for (let i = 0; i < pts.length; i++) { if (i === 0) ctx.moveTo(px(i), py(i)); else ctx.lineTo(px(i), py(i)); }
   ctx.stroke(); ctx.lineTo(px(pts.length-1), h); ctx.lineTo(px(0), h); ctx.closePath();
-  const grd = ctx.createLinearGradient(0, 0, 0, h); if (crash.crashed) { grd.addColorStop(0, 'rgba(255,107,107,0.35)'); grd.addColorStop(1, 'rgba(255,107,107,0)'); } else { grd.addColorStop(0, 'rgba(255,255,255,0.35)'); grd.addColorStop(1, 'rgba(255,255,255,0)'); }
+  const grd = ctx.createLinearGradient(0, 0, 0, h);
+  if (crash.crashed) { grd.addColorStop(0, 'rgba(255,107,107,0.35)'); grd.addColorStop(1, 'rgba(255,107,107,0)'); }
+  else { grd.addColorStop(0, 'rgba(255,255,255,0.35)'); grd.addColorStop(1, 'rgba(255,255,255,0)'); }
   ctx.fillStyle = grd; ctx.fill();
 }
 function generateCrashPoint() { if (Math.random() < 0.65) return 1.01 + Math.random() * 0.99; const u = Math.random(); return Math.max(1.01, 0.98 / Math.max(u, 0.02)); }
 function startCrash() {
-  if (crash.active) return; const input = document.getElementById('crashBet'); let bet = Math.floor(+input.value || 0);
-  if (bet < 100) { toast('Мин. ставка: 100'); return; } if (bet > state.balance) { toast('Недостаточно 😃'); return; } if (state.adminFree) bet = 0;
-  state.balance -= bet; renderHeader(); crash.active = true; crash.bet = bet; crash.mult = 1; crash.points = [{ x: 0, y: 1 }]; crash.startTime = performance.now(); crash.crashed = false; crash.crashAt = generateCrashPoint();
-  const multEl = document.getElementById('crashMult'); if (multEl) multEl.classList.remove('crashed'); updateCrashBtn(); vibrate('medium');
+  if (crash.active) return;
+  const input = document.getElementById('crashBet'); let bet = Math.floor(+input.value || 0);
+  if (bet < 100) { toast('Мин. ставка: 100'); return; }
+  if (bet > state.balance) { toast('Недостаточно 😃'); return; }
+  if (state.adminFree) bet = 0;
+  state.balance -= bet; renderHeader();
+  crash.active = true; crash.bet = bet; crash.mult = 1; crash.points = [{ x: 0, y: 1 }];
+  crash.startTime = performance.now(); crash.crashed = false; crash.crashAt = generateCrashPoint();
+  const multEl = document.getElementById('crashMult'); if (multEl) multEl.classList.remove('crashed');
+  updateCrashBtn(); vibrate('medium');
   const tick = () => {
-    if (!crash.active) return; const elapsed = (performance.now() - crash.startTime) / 1000; let m = 1 + Math.pow(elapsed, 1.4) * 0.15; crash.mult = m; crash.points.push({ x: elapsed, y: m }); if (crash.points.length > 400) crash.points.shift();
-    if (multEl) multEl.textContent = m.toFixed(2) + 'x'; updateCrashBtn(); drawCrashChart();
-    if (m >= crash.crashAt) { crash.active = false; crash.crashed = true; if (multEl) { multEl.textContent = 'CRASH 💥 ' + crash.crashAt.toFixed(2) + 'x'; multEl.classList.add('crashed'); } state.crashHistory.push(crash.crashAt); if (state.crashHistory.length > 50) state.crashHistory.shift(); vibrateNotification('error'); toast(`💥 Краш на ${crash.crashAt.toFixed(2)}x · ставка сгорела`); drawCrashChart(); renderHeader(); saveState(); setTimeout(() => { if (currentTab === 'crash') renderCrash(); }, 1200); return; }
+    if (!crash.active) return;
+    const elapsed = (performance.now() - crash.startTime) / 1000;
+    let m = 1 + Math.pow(elapsed, 1.4) * 0.15;
+    crash.mult = m; crash.points.push({ x: elapsed, y: m });
+    if (crash.points.length > 400) crash.points.shift();
+    if (multEl) multEl.textContent = m.toFixed(2) + 'x';
+    updateCrashBtn(); drawCrashChart();
+    if (m >= crash.crashAt) {
+      crash.active = false; crash.crashed = true;
+      if (multEl) { multEl.textContent = 'CRASH 💥 ' + crash.crashAt.toFixed(2) + 'x'; multEl.classList.add('crashed'); }
+      state.crashHistory.push(crash.crashAt);
+      if (state.crashHistory.length > 50) state.crashHistory.shift();
+      vibrateNotification('error'); toast(`💥 Краш на ${crash.crashAt.toFixed(2)}x · ставка сгорела`);
+      drawCrashChart(); renderHeader(); saveState();
+      setTimeout(() => { if (currentTab === 'crash') renderCrash(); }, 1200);
+      return;
+    }
     crash.rafId = requestAnimationFrame(tick);
-  }; crash.rafId = requestAnimationFrame(tick);
+  };
+  crash.rafId = requestAnimationFrame(tick);
 }
 function cashOut() {
-  if (!crash.active) return; crash.active = false; cancelAnimationFrame(crash.rafId); const win = crash.bet * crash.mult; state.balance += win; setStatMax('crashBest', crash.mult); bumpDaily('dCrashWin');
-  const multEl = document.getElementById('crashMult'); if (multEl) multEl.textContent = '✅ ' + crash.mult.toFixed(2) + 'x'; vibrateNotification('success'); toast(`✅ Забрано ${fmt(win)} 😃 (${crash.mult.toFixed(2)}x)`); renderHeader(); saveState();
+  if (!crash.active) return;
+  crash.active = false; cancelAnimationFrame(crash.rafId);
+  const win = crash.bet * crash.mult;
+  state.balance += win;
+  setStatMax('crashBest', crash.mult); bumpDaily('dCrashWin');
+  const multEl = document.getElementById('crashMult'); if (multEl) multEl.textContent = '✅ ' + crash.mult.toFixed(2) + 'x';
+  vibrateNotification('success'); toast(`✅ Забрано ${fmt(win)} 😃 (${crash.mult.toFixed(2)}x)`);
+  renderHeader(); saveState();
   setTimeout(() => { if (currentTab === 'crash') renderCrash(); }, 900);
 }
 
-/* ---------- HALLOWEEN ---------- */
-function renderHalloween() {
-  const h = state.halloween; const items = Object.keys(h.items).filter(k => h.items[k]);
-  const html = []; html.push(`<div class="section-title">🎃 Хэллоуин-ивент</div><div class="candy-display">🍬 Конфеты: <b>${fmt(h.candy)}</b>${h.candyFrac > 0 ? ` (+${h.candyFrac.toFixed(2)})` : ''}</div><div class="door-wrap"><div class="door-visual" id="doorVisual">🚪</div></div><button class="btn big" id="knockBtn" style="width:100%;margin-bottom:14px">Постучать (${DOOR_COST} 🍬)</button><div class="section-title">🍬 Обменник</div><div class="card"><div class="card-info"><div class="card-title">1 конфета</div><div class="card-sub">за ${fmt(CANDY_EXCHANGE)} 😃</div></div><button class="btn" id="exchBtn">Обменять</button></div><div class="card"><div class="card-info"><div class="card-title">×10 конфет</div><div class="card-sub">за ${fmt(CANDY_EXCHANGE * 10)} 😃</div></div><button class="btn" id="exch10Btn">Обменять</button></div><div class="section-title" style="margin-top:14px">⬆️ Конфетные улучшения</div>`);
-  for (const u of HALLOWEEN_UPGRADES) { const lvl = h.halUpgrades[u.id] || 0; const price = getHalloweenUpgradePrice(u); html.push(`<div class="card"><div class="card-info"><div class="card-title">${u.name} ${lvl ? `<span style="opacity:0.7">(ур. ${lvl})</span>` : ''}</div><div class="card-sub">${u.desc}</div></div><button class="btn" data-halupg="${u.id}" ${h.candy < price ? 'disabled' : ''}>${fmt(price)} 🍬</button></div>`); }
-  html.push(`<div class="section-title" style="margin-top:14px">🎃 Предметы (${items.length}/${HALLOWEEN_LIST.length})</div><div class="card-sub" style="padding:0 4px 8px;opacity:0.8">Ставятся на полку во вкладке «Полка»</div><div class="hal-grid">`);
-  for (const s of HALLOWEEN_LIST) { const owned = !!h.items[s]; if (owned) { html.push(`<div class="hal-item active">${s}<div class="buff-badge">${HALLOWEEN_ITEMS[s].label}</div></div>`); } else { html.push(`<div class="hal-item" style="opacity:0.3">❓</div>`); } }
-  html.push(`</div>`); content.innerHTML = html.join('');
-  document.getElementById('knockBtn').addEventListener('click', knockDoor); document.getElementById('exchBtn').addEventListener('click', () => exchangeCandy(1)); document.getElementById('exch10Btn').addEventListener('click', () => exchangeCandy(10));
-  content.querySelectorAll('[data-halupg]').forEach(b => { b.addEventListener('click', () => buyHalloweenUpgrade(b.dataset.halupg)); });
+/* ---------- CRAFT (QTE) ---------- */
+let craftSession = null;
+function renderCraft() {
+  const normalCount = state.inventory.filter(s => SMILEYS[s] && SMILEYS[s].tier === 'normal').length;
+  const canCraft = normalCount >= CRAFT_REQUIRED.count;
+  content.innerHTML = `
+    <div class="section-title">⚒️ Крафт смайлов</div>
+    <div class="craft-info">Нужно: <b>${CRAFT_REQUIRED.count} обычных смайла</b> (😆😄🙂)<br>У тебя: ${normalCount} обычных<br>Награда: случайный смайл (золотой / легендарный / тематический)<br><b>Провал → смайлы не тратятся</b></div>
+    <div class="qte-status" id="qteStatus">${canCraft ? 'Готов к крафту!' : `Не хватает обычных смайлов (${normalCount}/${CRAFT_REQUIRED.count})`}</div>
+    <div class="craft-area" id="craftArea"></div>
+    <button class="btn big" id="craftBtn" style="width:100%" ${!canCraft ? 'disabled' : ''}>Начать QTE (${CRAFT_REQUIRED.count} обычных → 1 редкий)</button>
+    <button class="btn" id="backGames" style="width:100%;margin-top:8px">Назад в Игры</button>
+  `;
+  document.getElementById('craftBtn').addEventListener('click', startCraft);
+  document.getElementById('backGames').addEventListener('click', () => { currentTab = 'games'; renderTabs(); applyTheme(); renderGames(); });
 }
+function startCraft() {
+  const normalItems = state.inventory.filter(s => SMILEYS[s] && SMILEYS[s].tier === 'normal');
+  if (normalItems.length < CRAFT_REQUIRED.count) { toast('Не хватает смайлов'); return; }
+  craftSession = { round: 0, total: 10, hits: 0, startTime: 0, targets: [] };
+  const area = document.getElementById('craftArea'); const status = document.getElementById('qteStatus');
+  if (!area || !status) return;
+  area.innerHTML = ''; status.textContent = 'Приготовься...';
+  setTimeout(() => nextCraftRound(), 400);
+}
+function nextCraftRound() {
+  if (!craftSession) return;
+  if (craftSession.round >= craftSession.total) { finishCraft(); return; }
+  craftSession.round++;
+  const area = document.getElementById('craftArea'); const status = document.getElementById('qteStatus');
+  if (!area || !status) { craftSession = null; return; }
+  status.textContent = `Раунд ${craftSession.round} / ${craftSession.total} · Попаданий: ${craftSession.hits}`;
+  const rect = area.getBoundingClientRect(); const size = 70;
+  const x = Math.random() * (rect.width - size); const y = Math.random() * (rect.height - size);
+  const target = document.createElement('div'); target.className = 'qte-target';
+  target.style.left = x + 'px'; target.style.top = y + 'px'; target.textContent = craftSession.round;
+  let reacted = false; const timeLimit = 1200 - craftSession.round * 50;
+  const timeout = setTimeout(() => { if (reacted) return; reacted = true; target.remove(); setTimeout(() => nextCraftRound(), 200); }, Math.max(500, timeLimit));
+  target.addEventListener('click', () => {
+    if (reacted) return; reacted = true; clearTimeout(timeout);
+    craftSession.hits++; target.classList.add('hit'); vibrate('light');
+    setTimeout(() => { target.remove(); nextCraftRound(); }, 200);
+  });
+  area.innerHTML = ''; area.appendChild(target);
+}
+function finishCraft() {
+  const hits = craftSession.hits; const total = craftSession.total; const success = hits >= 7; craftSession = null;
+  if (success) {
+    let need = CRAFT_REQUIRED.count;
+    for (let i = state.inventory.length - 1; i >= 0 && need > 0; i--) {
+      const s = state.inventory[i];
+      if (SMILEYS[s] && SMILEYS[s].tier === 'normal') { state.inventory.splice(i, 1); need--; }
+    }
+    const rarity = CRAFT_RARITY[Math.floor(Math.random() * CRAFT_RARITY.length)];
+    let pool; if (rarity === 'gold') pool = GOLD_SMILEYS; else if (rarity === 'legendary') pool = LEGENDARY_SMILEYS; else pool = THEMATIC_SMILEYS;
+    const drop = pool[Math.floor(Math.random() * pool.length)];
+    const isDup = state.inventory.includes(drop);
+    if (isDup) { state.balance += THEMATIC_CASE_REFUND; bumpStat('crafts'); bumpDaily('dCrafts'); vibrateNotification('warning'); toast(`Крафт: дубликат ${drop} → +${fmt(THEMATIC_CASE_REFUND)} 😃`); }
+    else { state.inventory.push(drop); bumpStat('crafts'); bumpDaily('dCrafts'); vibrateNotification('success'); toast(`✅ Крафт: ${drop}!`); }
+    saveState();
+  } else { vibrateNotification('error'); toast(`❌ Провал: ${hits}/${total} (нужно 7). Смайлы не тратятся.`); }
+  renderCraft(); renderHeader();
+}
+
+/* ---------- Пункт 3: EVENT (Хэллоуин + пасс) ---------- */
+function renderEvent() {
+  if (!ENABLE_HALLOWEEN) return;
+  const h = state.halloween;
+  const items = Object.keys(h.items).filter(k => h.items[k]);
+  const html = [];
+  html.push(`<div class="section-title">🎃 Хэллоуин-ивент</div><div class="candy-display">🍬 Конфеты: <b>${fmt(h.candy)}</b>${h.candyFrac > 0 ? ` (+${h.candyFrac.toFixed(2)})` : ''}</div>`);
+
+  // --- Пасс ---
+  html.push(`<div class="section-title" style="margin-top:6px">🎟️ Хэллоуин-пасс · ${h.passLevel}/5</div>`);
+  const passPct = (h.passLevel / PASS_LEVELS.length) * 100;
+  html.push(`<div class="pass-bar"><div class="pass-fill" style="width:${passPct}%"></div></div>`);
+  for (const lv of PASS_LEVELS) {
+    const claimed = h.passClaimed.includes(lv.lvl);
+    const locked = lv.lvl > 1 && !h.passClaimed.includes(lv.lvl - 1);
+    const canBuy = !claimed && !locked && h.candy >= lv.price;
+    const cls = claimed ? 'claimed' : (locked ? 'locked' : '');
+    const icon = claimed ? '✅' : (locked ? '🔒' : '🎁');
+    html.push(`
+      <div class="pass-level ${cls}">
+        <div class="lvl-num">${icon}<br><span style="font-size:11px">${lv.lvl}</span></div>
+        <div class="lvl-info">
+          <div class="lvl-title">${lv.title}</div>
+          <div class="lvl-reward">${lv.reward}</div>
+          <div class="lvl-price">${fmt(lv.price)} 🍬</div>
+        </div>
+        ${claimed ? '<div style="font-size:12px;font-weight:800;color:#9cff9c">Куплено</div>' : (locked ? '<div style="font-size:12px;opacity:0.6">🔒</div>' : `<button class="btn" data-pass="${lv.lvl}" ${!canBuy ? 'disabled' : ''}>Купить</button>`)}
+      </div>
+    `);
+  }
+
+  // --- Дверь ---
+  html.push(`<div class="section-title" style="margin-top:14px">🚪 Стук в дверь</div>`);
+  html.push(`<div class="door-wrap"><div class="door-visual" id="doorVisual">🚪</div></div>`);
+  html.push(`<button class="btn big" id="knockBtn" style="width:100%;margin-bottom:14px">Постучать (${DOOR_COST} 🍬)</button>`);
+
+  // --- Обменник ---
+  html.push(`<div class="section-title">🍬 Обменник</div>`);
+  html.push(`<div class="card"><div class="card-info"><div class="card-title">1 конфета</div><div class="card-sub">за ${fmt(CANDY_EXCHANGE)} 😃</div></div><button class="btn" id="exchBtn">Обменять</button></div>`);
+  html.push(`<div class="card"><div class="card-info"><div class="card-title">×10 конфет</div><div class="card-sub">за ${fmt(CANDY_EXCHANGE * 10)} 😃</div></div><button class="btn" id="exch10Btn">Обменять</button></div>`);
+
+  // --- Конфетные апгрейды ---
+  html.push(`<div class="section-title" style="margin-top:14px">⬆️ Конфетные улучшения</div>`);
+  for (const u of HALLOWEEN_UPGRADES) {
+    const lvl = h.halUpgrades[u.id] || 0; const price = getHalloweenUpgradePrice(u);
+    html.push(`<div class="card"><div class="card-info"><div class="card-title">${u.name} ${lvl ? `<span style="opacity:0.7">(ур. ${lvl})</span>` : ''}</div><div class="card-sub">${u.desc}</div></div><button class="btn" data-halupg="${u.id}" ${h.candy < price ? 'disabled' : ''}>${fmt(price)} 🍬</button></div>`);
+  }
+
+  // --- Предметы ---
+  html.push(`<div class="section-title" style="margin-top:14px">🎃 Предметы (${items.length}/${HALLOWEEN_LIST.length})</div><div class="card-sub" style="padding:0 4px 8px;opacity:0.8">Ставятся на полку во вкладке «Полка»</div><div class="hal-grid">`);
+  for (const s of HALLOWEEN_LIST) {
+    const owned = !!h.items[s];
+    if (owned) { html.push(`<div class="hal-item active">${s}<div class="buff-badge">${HALLOWEEN_ITEMS[s].label}</div></div>`); }
+    else { html.push(`<div class="hal-item" style="opacity:0.3">❓</div>`); }
+  }
+  html.push(`</div>`);
+
+  content.innerHTML = html.join('');
+
+  document.getElementById('knockBtn').addEventListener('click', knockDoor);
+  document.getElementById('exchBtn').addEventListener('click', () => exchangeCandy(1));
+  document.getElementById('exch10Btn').addEventListener('click', () => exchangeCandy(10));
+  content.querySelectorAll('[data-halupg]').forEach(b => { b.addEventListener('click', () => buyHalloweenUpgrade(b.dataset.halupg)); });
+  content.querySelectorAll('[data-pass]').forEach(b => { b.addEventListener('click', () => buyPassLevel(+b.dataset.pass)); });
+}
+
+/* Пункт 3: покупка уровня пасса */
+function buyPassLevel(lvl) {
+  if (!ENABLE_HALLOWEEN) return;
+  const h = state.halloween;
+  const level = PASS_LEVELS.find(l => l.lvl === lvl);
+  if (!level) return;
+  if (h.passClaimed.includes(lvl)) return;
+  if (lvl > 1 && !h.passClaimed.includes(lvl - 1)) { toast('Сначала купи предыдущий уровень'); return; }
+  if (h.candy < level.price) { toast('Недостаточно конфет'); return; }
+  h.candy -= level.price;
+  h.passClaimed.push(lvl);
+  h.passLevel = Math.max(h.passLevel, lvl);
+
+  if (lvl === 2) h.clickBonusFlat = (h.clickBonusFlat || 0) + 100;
+  if (lvl === 3) h.clickBonusFlat = (h.clickBonusFlat || 0) + 500;
+  if (lvl === 4) { if (!state.themesOwned.includes('halloween')) state.themesOwned.push('halloween'); }
+  if (lvl === 5) {
+    if (!state.animationsOwned.includes('spiders')) state.animationsOwned.push('spiders');
+    state.clickAnimation = 'spiders';
+  }
+  if (lvl === 1) { /* маска даётся как предмет '🎭' в слоте — учтено в shelfBuffs.hasMask */ }
+
+  vibrateNotification('success');
+  toast(`🎟️ Пасс уровень ${lvl}: ${level.title}`);
+  renderEvent(); renderHeader(); saveState();
+}
+
 function buyHalloweenUpgrade(id) {
-  const u = HALLOWEEN_UPGRADES.find(x => x.id === id); if (!u) return; const price = getHalloweenUpgradePrice(u); if (state.halloween.candy < price) return;
-  state.halloween.candy -= price; state.halloween.halUpgrades[id] = (state.halloween.halUpgrades[id] || 0) + 1; vibrate('medium'); toast(`Куплено: ${u.name}`); renderHalloween(); saveState();
+  const u = HALLOWEEN_UPGRADES.find(x => x.id === id); if (!u) return;
+  const price = getHalloweenUpgradePrice(u); if (state.halloween.candy < price) return;
+  state.halloween.candy -= price; state.halloween.halUpgrades[id] = (state.halloween.halUpgrades[id] || 0) + 1;
+  vibrate('medium'); toast(`Куплено: ${u.name}`); renderEvent(); saveState();
 }
 function exchangeCandy(n) {
-  const cost = CANDY_EXCHANGE * n; if (state.balance < cost) { toast('Недостаточно 😃'); return; }
-  state.balance -= cost; state.halloween.candy += n; vibrateNotification('success'); toast(`+${n} 🍬`); renderHalloween(); renderHeader(); saveState();
+  const cost = CANDY_EXCHANGE * n;
+  if (state.balance < cost) { toast('Недостаточно 😃'); return; }
+  state.balance -= cost; state.halloween.candy += n;
+  vibrateNotification('success'); toast(`+${n} 🍬`); renderEvent(); renderHeader(); saveState();
 }
 function knockDoor() {
-  if (doorBusy) return; if (state.halloween.candy < DOOR_COST) { toast(`Нужно ${DOOR_COST} 🍬`); return; }
-  doorBusy = true; state.halloween.candy -= DOOR_COST; bumpDaily('dKnocks'); renderHeader(); vibrate('heavy');
-  const cd = content.querySelector('.candy-display'); if (cd) cd.innerHTML = `🍬 Конфеты: <b>${fmt(state.halloween.candy)}</b>`;
-  const door = document.getElementById('doorVisual'); if (!door) { doorBusy = false; return; }
+  if (doorBusy) return;
+  if (state.halloween.candy < DOOR_COST) { toast(`Нужно ${DOOR_COST} 🍬`); return; }
+  doorBusy = true;
+  state.halloween.candy -= DOOR_COST;
+  bumpDaily('dKnocks');
+  renderHeader();
+  vibrate('heavy');
+  const cd = content.querySelector('.candy-display');
+  if (cd) cd.innerHTML = `🍬 Конфеты: <b>${fmt(state.halloween.candy)}</b>`;
+  const door = document.getElementById('doorVisual');
+  if (!door) { doorBusy = false; return; }
   const vw = window.innerWidth, vh = window.innerHeight;
-  const positions = [{ x: vw * 0.3, y: vh * 0.3, r: -15 }, { x: vw * 0.7, y: vh * 0.35, r: 12 }, { x: vw * 0.5, y: vh * 0.45, r: -8 }];
-  positions.forEach((p, i) => { setTimeout(() => { const el = document.createElement('div'); el.className = 'knock-anim'; el.textContent = 'тук'; el.style.left = p.x + 'px'; el.style.top = p.y + 'px'; el.style.setProperty('--r', p.r + 'deg'); document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }, i * 400); });
+  const positions = [
+    { x: vw * 0.3, y: vh * 0.3, r: -15 },
+    { x: vw * 0.7, y: vh * 0.35, r: 12 },
+    { x: vw * 0.5, y: vh * 0.45, r: -8 },
+  ];
+  positions.forEach((p, i) => {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'knock-anim';
+      el.textContent = 'тук';
+      el.style.left = p.x + 'px';
+      el.style.top = p.y + 'px';
+      el.style.setProperty('--r', p.r + 'deg');
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }, i * 400);
+  });
   setTimeout(() => {
     if (door) door.classList.add('opening');
     setTimeout(() => {
-      const roll = pickByWeight(HALLOWEEN_LIST.map(s => ({ s, w: 1 }))); const isDup = !!state.halloween.items[roll];
+      const roll = pickByWeight(HALLOWEEN_LIST.map(s => ({ s, w: 1 })));
+      const isDup = !!state.halloween.items[roll];
       if (isDup) { showGadost(); vibrateNotification('error'); toast(`Повторка: ${roll} · без возврата`); }
       else { state.halloween.items[roll] = true; vibrateNotification('success'); toast(`🎁 Получен предмет: ${roll} (${HALLOWEEN_ITEMS[roll].name})`); }
-      state.halloween.doorOpenedCount = (state.halloween.doorOpenedCount || 0) + 1; saveState(); doorBusy = false; showDropResult(roll, isDup);
+      state.halloween.doorOpenedCount = (state.halloween.doorOpenedCount || 0) + 1;
+      saveState();
+      doorBusy = false;
+      showDropResult(roll, isDup);
     }, 900);
   }, 1600);
 }
 function showDropResult(roll, isDup) {
   const bg = document.createElement('div'); bg.className = 'modal-bg';
   bg.innerHTML = `<div class="modal"><div class="modal-emoji">${roll}</div><div class="modal-title">${isDup ? 'Повторка!' : 'Новый предмет!'}</div><div class="modal-desc"><b>${HALLOWEEN_ITEMS[roll].name}</b><br>${HALLOWEEN_ITEMS[roll].label}${isDup ? '<br><br><span style="color:#ff9c9c">Без возврата.</span>' : '<br><br>Можно поставить на полку!'}</div><div class="modal-actions"><button class="btn" id="drOk">Ок</button></div></div>`;
-  document.body.appendChild(bg); bg.querySelector('#drOk').addEventListener('click', () => { bg.remove(); renderHalloween(); renderHeader(); });
+  document.body.appendChild(bg);
+  bg.querySelector('#drOk').addEventListener('click', () => { bg.remove(); renderEvent(); renderHeader(); });
 }
-function showGadost() { const ov = document.createElement('div'); ov.className = 'gadost-overlay'; ov.innerHTML = `<div class="gadost-text">ГАДОСТЬ</div>`; document.body.appendChild(ov); setTimeout(() => ov.remove(), 5000); }
+function showGadost() {
+  const ov = document.createElement('div');
+  ov.className = 'gadost-overlay';
+  ov.innerHTML = `<div class="gadost-text">ГАДОСТЬ</div>`;
+  document.body.appendChild(ov);
+  setTimeout(() => ov.remove(), 5000);
+}
+
+/* ---------- Пункт 4+5+6+7: SETTINGS (Темы + Анимки + Аккаунт + Вибрация + Админ) ---------- */
+function renderSettings() {
+  const html = [];
+  html.push(`<div class="section-title">⚙️ Настройки</div>`);
+
+  // --- Аккаунт (пункт 6) ---
+  html.push(`<div class="section-title">👤 Аккаунт</div>`);
+  if (TG_USER) {
+    const avatarInner = TG_USER.photo_url
+      ? `<img src="${TG_USER.photo_url}" alt="">`
+      : '👤';
+    const name = [TG_USER.first_name, TG_USER.last_name].filter(Boolean).join(' ') || 'Без имени';
+    const uname = TG_USER.username ? '@' + TG_USER.username : '(без username)';
+    html.push(`
+      <div class="acc-card">
+        <div class="acc-avatar">${avatarInner}</div>
+        <div class="acc-info">
+          <div class="acc-name">${name} ${IS_ADMIN ? '<span class="acc-admin-badge">👑 Админ</span>' : ''}</div>
+          <div class="acc-id">${uname} · ID: ${TG_USER.id}</div>
+          <div class="acc-balance">Баланс: ${fmt(state.balance)} 😃</div>
+        </div>
+      </div>
+    `);
+  } else {
+    html.push(`<div class="card" style="flex-direction:column;align-items:stretch"><div class="card-sub" style="text-align:center;margin-bottom:10px">Открой через Telegram, чтобы увидеть аккаунт</div><button class="btn" id="noAccBtn" style="width:100%">Продолжить без аккаунта</button></div>`);
+  }
+  // ⚠️ Безопасность: initDataUnsafe НЕ проверен на сервере. Игрок с отладчиком может подставить username.
+  // Для массовой игры нужен бэкенд с проверкой подписи initData.
+  if (ENABLE_ADMIN && IS_ADMIN) {
+    html.push(`<button class="btn big" id="adminBtn" style="width:100%;margin-bottom:14px">👑 Открыть админ-панель</button>`);
+    html.push(`<div id="adminPanel"></div>`);
+  }
+
+  // --- Вибрация (пункт 7) ---
+  html.push(`<div class="section-title" style="margin-top:14px">📳 Вибрация</div>`);
+  html.push(`<div class="toggle-row"><div><div class="card-title">Вибрация</div><div class="card-sub">Тактильный отклик при действиях</div></div><div class="toggle ${state.vibrateEnabled ? 'on' : ''}" id="vibToggle"></div></div>`);
+
+  // --- Темы (пункт 4) ---
+  html.push(`<div class="section-title" style="margin-top:14px">🎨 Темы оформления</div><div class="theme-grid">`);
+  const defActive = state.activeTheme === 'default' || !state.activeTheme;
+  html.push(`<div class="theme-card theme-default-preview ${defActive ? 'active' : ''}" data-theme="default"><div class="big-emoji">💧</div><div>Голубая</div></div>`);
+  // Список тем: winter/autumn/dark + halloween (если получена через пасс)
+  const allThemes = [...THEMES];
+  if (ENABLE_HALLOWEEN && state.themesOwned.includes('halloween')) allThemes.push('halloween');
+  for (const t of allThemes) {
+    const owned = state.themesOwned.includes(t);
+    const active = state.activeTheme === t;
+    const previewCls = `theme-${t}-preview`;
+    html.push(`<div class="theme-card ${previewCls} ${active ? 'active' : ''} ${owned ? '' : 'locked'}" data-theme="${t}"><div class="big-emoji">${THEME_NAMES[t].split(' ')[0]}</div><div>${THEME_NAMES[t].split(' ').slice(1).join(' ')}</div>${owned ? '' : '<div style="font-size:10px;opacity:0.8">не куплена</div>'}</div>`);
+  }
+  html.push(`</div><div class="card-sub" style="text-align:center;opacity:0.8;padding:8px;margin-bottom:14px">Купить темы можно в кейсе с темами (вкладка «Кейсы»)</div>`);
+
+  // --- Анимки (пункт 5) ---
+  html.push(`<div class="section-title">🎬 Анимка клика</div><div class="anim-grid">`);
+  html.push(`<div class="anim-card ${state.clickAnimation === 'default' ? 'active' : ''}" data-anim="default"><div class="big-emoji">😃</div><div>Стандарт</div></div>`);
+  const spidersOwned = state.animationsOwned.includes('spiders');
+  html.push(`<div class="anim-card ${state.clickAnimation === 'spiders' ? 'active' : ''} ${spidersOwned ? '' : 'locked'}" data-anim="spiders"><div class="big-emoji">🕷</div><div>Пауки${spidersOwned ? '' : ' 🔒'}</div></div>`);
+  html.push(`</div><div class="card-sub" style="text-align:center;opacity:0.8;padding:8px;margin-bottom:14px">«Пауки» открываются на 5 уровне Хэллоуин-пасса</div>`);
+
+  content.innerHTML = html.join('');
+
+  // --- Обработчики ---
+  const vibT = document.getElementById('vibToggle');
+  if (vibT) vibT.addEventListener('click', () => {
+    state.vibrateEnabled = !state.vibrateEnabled;
+    vibT.classList.toggle('on', state.vibrateEnabled);
+    if (state.vibrateEnabled) vibrate('medium');
+    saveState();
+  });
+
+  content.querySelectorAll('[data-theme]').forEach(el => {
+    el.addEventListener('click', () => {
+      const t = el.dataset.theme;
+      if (t === 'default') { state.activeTheme = 'default'; }
+      else {
+        if (!state.themesOwned.includes(t)) { toast('Тема не куплена!'); return; }
+        state.activeTheme = t;
+      }
+      vibrate('medium'); toast(`Тема: ${THEME_NAMES[t]}`); render();
+    });
+  });
+
+  content.querySelectorAll('[data-anim]').forEach(el => {
+    el.addEventListener('click', () => {
+      const a = el.dataset.anim;
+      if (a !== 'default' && !state.animationsOwned.includes(a)) { toast('Анимка не куплена!'); return; }
+      state.clickAnimation = a; vibrate('medium'); toast(`Анимка: ${a === 'spiders' ? '🕷 Пауки' : '😃 Стандарт'}`); renderSettings(); saveState();
+    });
+  });
+
+  const noAcc = document.getElementById('noAccBtn');
+  if (noAcc) noAcc.addEventListener('click', () => toast('Играем без аккаунта'));
+
+  const adminBtn = document.getElementById('adminBtn');
+  if (adminBtn) adminBtn.addEventListener('click', () => {
+    const panel = document.getElementById('adminPanel');
+    if (panel) renderAdmin(panel);
+  });
+}
+
+/* ---------- Пункт 6: админ-панель прямо в Настройках ---------- */
+function renderAdmin(container) {
+  const html = [];
+  html.push(`<div class="admin-panel"><div class="card-title">👑 Админ-панель</div>`);
+  html.push(`<div class="card"><div class="card-info"><div class="card-title">Бесплатные покупки</div><div class="card-sub">Все цены = 0</div></div><button class="btn" id="admFree">${state.adminFree ? 'ВЫКЛ' : 'ВКЛ'}</button></div>`);
+  html.push(`<div class="card"><div class="card-info"><div class="card-title">+1 000 000 😃</div></div><button class="btn" id="admMoney">Дать</button></div>`);
+  html.push(`<div class="card"><div class="card-info"><div class="card-title">+1 000 🍬</div></div><button class="btn" id="admCandy">Дать</button></div>`);
+  html.push(`<div class="card"><div class="card-info"><div class="card-title">Выдать все смайлы</div></div><button class="btn" id="admSmiles">Дать</button></div>`);
+  html.push(`<div class="card"><div class="card-info"><div class="card-title">Сброс сохранения</div></div><button class="btn danger" id="admReset">Сброс</button></div>`);
+  html.push(`</div>`);
+  container.innerHTML = html.join('');
+
+  document.getElementById('admFree').addEventListener('click', () => { state.adminFree = !state.adminFree; toast(`Бесплатные покупки: ${state.adminFree ? 'ВКЛ' : 'ВЫКЛ'}`); renderAdmin(container); renderHeader(); saveState(); });
+  document.getElementById('admMoney').addEventListener('click', () => { state.balance += 1000000; toast('+1 000 000 😃'); renderHeader(); saveState(); });
+  document.getElementById('admCandy').addEventListener('click', () => { state.halloween.candy += 1000; toast('+1 000 🍬'); saveState(); });
+  document.getElementById('admSmiles').addEventListener('click', () => { for (const s of ALL_SMILEYS) if (!state.inventory.includes(s)) state.inventory.push(s); toast('Выданы все смайлы'); saveState(); });
+  document.getElementById('admReset').addEventListener('click', () => { if (confirm('Сбросить сохранение?')) { localStorage.removeItem('smileyClickerSave_v5'); location.reload(); } });
+}
 
 /* ============================================================
    TOAST
 ============================================================ */
 const toastWrap = document.getElementById('toast-wrap');
-function toast(msg) { const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; toastWrap.appendChild(el); setTimeout(() => el.remove(), 2600); }
+function toast(msg) {
+  const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
+  toastWrap.appendChild(el); setTimeout(() => el.remove(), 2600);
+}
 
 /* ============================================================
    TABS
 ============================================================ */
 tabsEl.addEventListener('click', e => {
   const btn = e.target.closest('.tab'); if (!btn) return;
-  if (btn.dataset.tab === 'admin' && !ENABLE_ADMIN) return;
-  if (btn.dataset.tab === 'halloween' && !ENABLE_HALLOWEEN) return;
-  currentTab = btn.dataset.tab; caseAnimating = false; vibrate('light'); render();
+  if (btn.dataset.tab === 'event' && !ENABLE_HALLOWEEN) return;
+  currentTab = btn.dataset.tab;
+  caseAnimating = false;
+  vibrate('light');
+  render();
 });
 
 /* ============================================================
-   OFFLINE MODAL
+   OFFLINE MODAL (старая модалка больше не нужна — копилка в Банке)
+   Оставляем функцию на всякий случай, но не вызываем автоматически.
 ============================================================ */
 function showOfflineModal() {
-  if (state.pendingOffline <= 0) return; const amount = state.pendingOffline;
+  if (state.pendingOffline <= 0) return;
+  const amount = state.pendingOffline;
   const bg = document.createElement('div'); bg.className = 'modal-bg';
-  bg.innerHTML = `<div class="modal"><div class="modal-emoji">💤</div><div class="modal-title">Пока тебя не было</div><div class="modal-desc">Накоплено: <b>${fmt(amount)} 😃</b><br><span style="font-size:11px;opacity:0.85">Работает, пока на полке есть смайлы с оффлайн-бафом (😎🏆🦄🧛)</span></div><div class="modal-actions"><button class="btn big" id="offClaim">Забрать</button></div></div>`;
+  bg.innerHTML = `<div class="modal"><div class="modal-emoji">💤</div><div class="modal-title">Пока тебя не было</div><div class="modal-desc">Накоплено: <b>${fmt(amount)} 😃</b><br><span style="font-size:11px;opacity:0.85">Забери в Банке → Копилка оффлайна</span></div><div class="modal-actions"><button class="btn big" id="offGo">Перейти в Банк</button></div></div>`;
   document.body.appendChild(bg);
-  bg.querySelector('#offClaim').addEventListener('click', () => { state.balance += state.pendingOffline; state.pendingOffline = 0; vibrateNotification('success'); toast(`+${fmt(amount)} 😃 за оффлайн`); bg.remove(); renderHeader(); saveState(); });
+  bg.querySelector('#offGo').addEventListener('click', () => { bg.remove(); currentTab = 'bank'; renderTabs(); applyTheme(); render(); });
 }
 
 /* ============================================================
@@ -1008,11 +1645,28 @@ function showOfflineModal() {
 ============================================================ */
 let lastTick = Date.now();
 setInterval(() => {
-  const now = Date.now(); const dt = (now - lastTick) / 1000; lastTick = now;
-  const cps = totalCps(); if (cps > 0) { state.balance += cps * dt; renderHeader(); }
-  const ccps = candyCps(); if (ccps > 0) { state.halloween.candyFrac += ccps * dt; if (state.halloween.candyFrac >= 1) { const whole = Math.floor(state.halloween.candyFrac); state.halloween.candy += whole; state.halloween.candyFrac -= whole; if (currentTab === 'halloween') { const cd = content.querySelector('.candy-display'); if (cd) cd.innerHTML = `🍬 Конфеты: <b>${fmt(state.halloween.candy)}</b>${state.halloween.candyFrac > 0 ? ` (+${state.halloween.candyFrac.toFixed(2)})` : ''}`; } } }
+  const now = Date.now();
+  const dt = (now - lastTick) / 1000; lastTick = now;
+  const cps = totalCps();
+  if (cps > 0) { state.balance += cps * dt; renderHeader(); }
+  const ccps = candyCps();
+  if (ENABLE_HALLOWEEN && ccps > 0) {
+    state.halloween.candyFrac += ccps * dt;
+    if (state.halloween.candyFrac >= 1) {
+      const whole = Math.floor(state.halloween.candyFrac);
+      state.halloween.candy += whole;
+      state.halloween.candyFrac -= whole;
+      if (currentTab === 'event') {
+        const cd = content.querySelector('.candy-display');
+        if (cd) cd.innerHTML = `🍬 Конфеты: <b>${fmt(state.halloween.candy)}</b>${state.halloween.candyFrac > 0 ? ` (+${state.halloween.candyFrac.toFixed(2)})` : ''}`;
+      }
+    }
+  }
 }, 100);
-setInterval(() => { saveState(); if (currentTab === 'shop') renderShop(); }, 2000);
+setInterval(() => {
+  saveState();
+  if (currentTab === 'shop') renderShop();
+}, 2000);
 
 /* ============================================================
    BOOT
@@ -1021,7 +1675,8 @@ ensureDaily();
 computeOffline();
 buildTabs();
 render();
-setTimeout(() => showOfflineModal(), 300);
+// Показываем модалку-напоминание об оффлайне, но она ведёт в Банк (нельзя потерять накопления)
+if (state.pendingOffline > 0) setTimeout(() => showOfflineModal(), 400);
 </script>
 </body>
-  </html>
+</html>
