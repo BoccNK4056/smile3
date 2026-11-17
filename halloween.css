@@ -1,0 +1,98 @@
+/* ============================================================
+   HALLOWEEN — изолированный ивент
+   Удалить этот файл + halloween.js + строки в index.html,
+   чтобы полностью убрать ивент. State не пострадает.
+============================================================ */
+
+body.theme-halloween {
+  background: linear-gradient(180deg, #1a0f00 0%, #3d1f00 40%, #6b2c00 100%);
+}
+body.theme-halloween .tab, body.theme-halloween .btn { border-color: #ff8c00; color: #ffd18c; }
+body.theme-halloween .tab.active { background: rgba(255,140,0,0.35); }
+body.theme-halloween .card { border-color: rgba(255,140,0,0.7); background: rgba(255,140,0,0.1); }
+body.theme-halloween .section-title { color: #ffb347; }
+body.theme-halloween .stat-pill { border-color: #ff8c00; background: rgba(255,140,0,0.2); }
+body.theme-halloween .tabs-wrap { background: rgba(40, 15, 0, 0.8); border-top-color: #ff8c00; }
+
+/* Пауки на фоне */
+.spider { position: absolute; top: -50px; animation: fall linear infinite; }
+@keyframes crawl {
+  0%   { transform: translate(0,0) rotate(0deg); }
+  25%  { transform: translate(30px, 50px) rotate(20deg); }
+  50%  { transform: translate(-20px, 90px) rotate(-15deg); }
+  75%  { transform: translate(40px, 130px) rotate(25deg); }
+  100% { transform: translate(0, 180px) rotate(0deg); }
+}
+
+/* Конфеты */
+.candy-display { font-size: 18px; font-weight: 800; text-align: center; margin: 4px 0 12px; }
+.candy-display b { color: #ffb347; font-size: 22px; }
+
+/* Дверь */
+.door-wrap { display: flex; flex-direction: column; align-items: center; padding: 14px 0; position: relative; }
+.door-visual {
+  font-size: 140px; line-height: 1; transition: transform 0.3s;
+  filter: drop-shadow(0 8px 20px rgba(255,140,0,0.4)); cursor: pointer;
+}
+.door-visual.opening { animation: doorOpen 0.9s ease forwards; }
+@keyframes doorOpen {
+  0%   { transform: perspective(400px) rotateY(0deg); }
+  60%  { transform: perspective(400px) rotateY(-70deg) scale(1.1); }
+  100% { transform: perspective(400px) rotateY(-90deg) scale(1.2); opacity: 0.3; }
+}
+.knock-anim {
+  position: fixed; font-size: 28px; font-weight: 900; color: #fff;
+  text-shadow: 0 2px 10px #ff6b00, 0 0 20px #ff6b00;
+  pointer-events: none; z-index: 600;
+  animation: knockAnim 1s ease forwards;
+}
+@keyframes knockAnim {
+  0%   { transform: scale(0.5) rotate(var(--r, 0deg)); opacity: 0; }
+  20%  { transform: scale(1.4) rotate(var(--r, 0deg)); opacity: 1; }
+  60%  { transform: scale(1.2) rotate(var(--r, 0deg)); opacity: 1; }
+  100% { transform: scale(0.8) rotate(var(--r, 0deg)); opacity: 0; }
+}
+
+/* Предметы */
+.hal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+.hal-item {
+  aspect-ratio: 1; background: rgba(255,140,0,0.15); border: 2px solid #ff8c00;
+  border-radius: 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 44px; cursor: pointer; position: relative; transition: transform 0.1s;
+}
+.hal-item:active { transform: scale(0.94); }
+.hal-item.active { background: rgba(255, 140, 0, 0.55); box-shadow: 0 0 16px rgba(255,140,0,0.9); }
+
+/* ГАДОСТЬ */
+.gadost-overlay {
+  position: fixed; inset: 0; background: #000;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 5000; pointer-events: none;
+  animation: gadostFade 5s ease forwards;
+}
+.gadost-text {
+  font-size: 72px; font-weight: 900; color: #ff0000;
+  text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000;
+  letter-spacing: 4px; animation: gadostGlitch 0.15s infinite alternate;
+}
+@keyframes gadostFade { 0% { opacity: 0; } 5% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes gadostGlitch { 0% { transform: translate(0,0); } 100% { transform: translate(4px,-3px); } }
+
+/* Пасс */
+.pass-bar {
+  height: 12px; background: rgba(0,0,0,0.25); border: 2px solid rgba(255,255,255,0.6);
+  border-radius: 10px; overflow: hidden; margin: 6px 0 14px;
+}
+.pass-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff8c00, #ffd700); transition: width 0.3s ease; }
+.pass-level {
+  background: rgba(255,140,0,0.1); border: 2px solid #ff8c00;
+  border-radius: 16px; padding: 12px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.pass-level.claimed { background: rgba(120,220,120,0.2); border-color: #9cff9c; }
+.pass-level.locked { opacity: 0.55; }
+.pass-level .lvl-num { font-size: 26px; font-weight: 900; min-width: 38px; text-align: center; }
+.pass-level .lvl-info { flex: 1; min-width: 0; }
+.pass-level .lvl-title { font-weight: 800; font-size: 14px; }
+.pass-level .lvl-reward { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+.pass-level .lvl-price { font-size: 12px; font-weight: 800; color: #ffd18c; margin-top: 2px; }
