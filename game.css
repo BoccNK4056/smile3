@@ -1,0 +1,191 @@
+/* ============================================================
+   GAME — смайлик, полка, кейсы, краш, крафт
+============================================================ */
+
+/* ===== Главный смайлик ===== */
+#smiley {
+  font-size: 170px; line-height: 1;
+  background: transparent; border: none; cursor: pointer;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+  transition: transform 0.08s; padding: 0;
+}
+#smiley:active { transform: scale(0.9); }
+#smiley.pop { animation: pop 0.18s ease; }
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15) rotate(-4deg); }
+  100% { transform: scale(1); }
+}
+.click-hint { font-size: 13px; opacity: 0.9; text-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+
+/* ===== Всплывающие числа ===== */
+.float-num {
+  position: fixed; pointer-events: none; font-weight: 800; font-size: 22px;
+  color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  animation: floatUp 0.9s ease-out forwards; z-index: 999;
+}
+@keyframes floatUp {
+  0%   { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -80px) scale(1.3); opacity: 0; }
+}
+
+/* ===== Полка ===== */
+.slots {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px; margin-bottom: 8px;
+}
+.slot {
+  aspect-ratio: 1; background: rgba(255,255,255,0.15);
+  border: 2px dashed rgba(255,255,255,0.7); border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px; cursor: pointer;
+  transition: transform 0.1s, background 0.15s; position: relative;
+}
+.slot.filled { border-style: solid; background: rgba(255,255,255,0.3); }
+.slot:active { transform: scale(0.94); }
+.slot .empty-label { font-size: 11px; opacity: 0.7; font-weight: 700; }
+
+/* ===== Инвентарь ===== */
+.inventory { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; }
+.inv-item {
+  aspect-ratio: 1; background: rgba(255,255,255,0.2); border: 2px solid #fff;
+  border-radius: 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 40px; cursor: pointer;
+  transition: transform 0.1s, background 0.15s; position: relative;
+}
+.inv-item:active { transform: scale(0.94); }
+.inv-item.on-shelf { background: rgba(120, 220, 120, 0.4); box-shadow: 0 0 12px rgba(120,220,120,0.7); }
+.inv-item.gold { background: rgba(255, 215, 0, 0.35); border-color: #ffd700; }
+.inv-item.gold.on-shelf { background: rgba(255, 215, 0, 0.55); }
+.inv-item.legendary { background: rgba(200, 100, 255, 0.35); border-color: #d97aff; }
+.slot .buff-badge, .inv-item .buff-badge, .hal-item .buff-badge {
+  position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; background: rgba(0,0,0,0.45); padding: 2px 6px;
+  border-radius: 8px; font-weight: 700; white-space: nowrap;
+  max-width: 92%; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ===== Кейсы ===== */
+.case-visual {
+  font-size: 80px; text-align: center; padding: 16px;
+  animation: shake 2.5s infinite;
+}
+@keyframes shake {
+  0%, 90%, 100% { transform: rotate(0); }
+  92% { transform: rotate(-6deg) scale(1.05); }
+  94% { transform: rotate(6deg) scale(1.05); }
+  96% { transform: rotate(-4deg) scale(1.03); }
+  98% { transform: rotate(4deg) scale(1.03); }
+}
+.case-opening {
+  font-size: 90px; text-align: center; padding: 20px;
+  animation: spinpop 0.6s ease;
+}
+@keyframes spinpop {
+  0%   { transform: rotate(0) scale(0.3); opacity: 0; }
+  60%  { transform: rotate(360deg) scale(1.3); opacity: 1; }
+  100% { transform: rotate(720deg) scale(1); }
+}
+.drop-pool { display: flex; justify-content: center; gap: 14px; font-size: 28px; margin: 10px 0; flex-wrap: wrap; }
+.drop-pool .chance { font-size: 10px; display: block; text-align: center; opacity: 0.8; }
+
+/* ===== Пасхалка «лёд» ===== */
+.ice-whisper {
+  font-style: italic; font-size: 12px; opacity: 0.7;
+  text-align: center; margin-top: 8px;
+  animation: fadeIn 1.5s ease;
+  color: #b0e8ff;
+  text-shadow: 0 0 8px rgba(176, 232, 255, 0.6);
+  letter-spacing: 0.5px;
+}
+
+/* ===== Краш ===== */
+.crash-chart-wrap {
+  background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6);
+  border-radius: 16px; padding: 10px; margin-bottom: 10px; position: relative;
+}
+#crashCanvas { width: 100%; height: 180px; display: block; }
+.crash-mult {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  font-size: 34px; font-weight: 900;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4); pointer-events: none;
+}
+.crash-mult.crashed { color: #ff6b6b; }
+.crash-history {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 10px; font-size: 11px; font-weight: 700;
+}
+.crash-history span {
+  background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.6);
+  border-radius: 10px; padding: 3px 8px;
+}
+.crash-history span.high { border-color: #9cff9c; }
+.crash-history span.low { border-color: #ff9c9c; }
+.bet-input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.bet-input-row input { flex: 1; }
+.quick-bets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 10px; }
+.quick-bets .btn { padding: 8px 2px; font-size: 12px; }
+
+/* ===== Крафт (QTE) ===== */
+.craft-area {
+  position: relative; width: 100%; height: 320px;
+  background: rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.6);
+  border-radius: 18px; overflow: hidden; margin-bottom: 12px;
+}
+.qte-target {
+  position: absolute; width: 70px; height: 70px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #6ec6ff 70%);
+  border: 3px solid #fff; box-shadow: 0 0 20px rgba(255,255,255,0.7);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 22px; color: #1a5a8a;
+  animation: qtePop 0.2s ease;
+}
+@keyframes qtePop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.qte-target.hit {
+  animation: qteHit 0.3s ease forwards; pointer-events: none;
+}
+@keyframes qteHit {
+  to { transform: scale(1.8); opacity: 0; background: #9cff9c; }
+}
+.qte-status { text-align: center; font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+.craft-info { text-align: center; font-size: 12px; opacity: 0.85; margin-bottom: 10px; }
+
+/* ===== Темы (превью) ===== */
+.theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+.theme-card {
+  aspect-ratio: 1.4; border-radius: 18px; border: 3px solid #fff;
+  cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  font-weight: 800; font-size: 13px; transition: transform 0.1s;
+  position: relative; overflow: hidden; padding: 10px; text-align: center;
+}
+.theme-card:active { transform: scale(0.96); }
+.theme-card.active { box-shadow: 0 0 0 4px #fff, 0 0 20px rgba(255,255,255,0.8); }
+.theme-card .big-emoji { font-size: 40px; }
+.theme-card.locked { opacity: 0.45; }
+.theme-default-preview  { background: linear-gradient(180deg, #a8e0ff, #3aa9e8); }
+.theme-winter-preview   { background: linear-gradient(180deg, #e8f4ff, #8fc7f0); color: #234; }
+.theme-autumn-preview   { background: linear-gradient(180deg, #ffd89b, #d9691e); }
+.theme-dark-preview     { background: linear-gradient(180deg, #1a1a2e, #0f0f1e); }
+
+/* ===== Анимки ===== */
+.anim-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+.anim-card {
+  aspect-ratio: 1.6; border-radius: 16px; border: 3px solid #fff;
+  background: rgba(255,255,255,0.15); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 4px; font-weight: 800; font-size: 13px;
+}
+.anim-card .big-emoji { font-size: 34px; }
+.anim-card.active { box-shadow: 0 0 0 4px #fff, 0 0 20px rgba(255,255,255,0.8); background: rgba(255,255,255,0.3); }
+.anim-card.locked { opacity: 0.45; }
+
+/* ===== Анимка «Пауки» при клике ===== */
+.spider-burst {
+  position: fixed; font-size: 26px; pointer-events: none; z-index: 998;
+  animation: spiderRun 0.8s ease-out forwards;
+}
+@keyframes spiderRun {
+  0%   { transform: translate(-50%,-50%) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(0.6); opacity: 0; }
+  }
