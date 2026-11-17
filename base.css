@@ -1,0 +1,101 @@
+/* ============================================================
+   BASE — сброс, шрифты, темы, общие переменные
+============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; user-select: none; overflow: hidden; }
+
+body {
+  background: linear-gradient(180deg, #a8e0ff 0%, #6ec6ff 40%, #3aa9e8 100%);
+  color: #fff; display: flex; flex-direction: column;
+  height: 100vh; height: 100dvh;
+  transition: background 0.5s ease; position: relative;
+}
+
+/* ===== Темы ===== */
+body.theme-winter   { background: linear-gradient(180deg, #e8f4ff 0%, #b8dfff 50%, #8fc7f0 100%); color: #234; }
+body.theme-winter .tab, body.theme-winter .btn { border-color: #4a7ab0; color: #234; }
+body.theme-winter .tab.active { background: rgba(74,122,176,0.25); }
+body.theme-winter .stat-pill { border-color: #4a7ab0; background: rgba(74,122,176,0.15); color: #234; }
+body.theme-winter .card { border-color: rgba(74,122,176,0.6); background: rgba(255,255,255,0.4); }
+body.theme-winter .tabs-wrap { background: rgba(200,225,245,0.8); border-top-color: #4a7ab0; }
+body.theme-winter .balance, body.theme-winter .section-title, body.theme-winter .buff-line { color: #234; }
+
+body.theme-autumn   { background: linear-gradient(180deg, #ffd89b 0%, #ff9e3d 50%, #d9691e 100%); }
+body.theme-autumn .tab, body.theme-autumn .btn { border-color: #fff3c0; color: #fff3c0; }
+body.theme-autumn .tabs-wrap { background: rgba(150, 60, 10, 0.65); border-top-color: #fff3c0; }
+
+body.theme-dark     { background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f1e 100%); }
+body.theme-dark .tab, body.theme-dark .btn { border-color: #7a7a9e; color: #c8c8e0; }
+body.theme-dark .card { border-color: rgba(122,122,158,0.5); background: rgba(60,60,90,0.3); }
+body.theme-dark .tabs-wrap { background: rgba(10,10,20,0.85); border-top-color: #7a7a9e; }
+body.theme-dark .stat-pill { border-color: #7a7a9e; background: rgba(60,60,90,0.3); }
+
+/* ===== Weather layer ===== */
+.weather-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.snowflake, .leaf { position: absolute; top: -50px; animation: fall linear infinite; }
+@keyframes fall {
+  0%   { transform: translateY(-50px) rotate(0deg); opacity: 0.9; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0.6; }
+}
+
+/* ===== Header ===== */
+header { text-align: center; padding: 8px 12px 4px; flex-shrink: 0; position: relative; z-index: 2; }
+.balance {
+  font-size: 28px; font-weight: 800; text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  letter-spacing: 0.5px; cursor: pointer;
+}
+.stats-block {
+  margin-top: 6px; display: flex; justify-content: center; gap: 6px;
+  flex-wrap: wrap; font-size: 12px; font-weight: 700;
+}
+.stat-pill {
+  background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 12px; padding: 4px 10px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25); white-space: nowrap;
+}
+.stat-pill b { font-size: 14px; }
+.buff-line {
+  font-size: 11px; opacity: 0.95; margin-top: 4px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25); min-height: 14px;
+}
+
+/* ===== Контент ===== */
+.content {
+  flex: 1; overflow-y: auto; padding: 8px 12px 110px; min-height: 0;
+  -webkit-overflow-scrolling: touch; position: relative; z-index: 1;
+}
+.content::-webkit-scrollbar { width: 0; }
+.main-centered {
+  min-height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px; padding: 10px 0;
+}
+
+/* ===== Значок валюты (с с полочкой) ===== */
+.smile-coin {
+  display: inline-block; font-weight: 900; color: #ffd700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  position: relative; line-height: 1;
+}
+.smile-coin::after {
+  content: ''; position: absolute;
+  bottom: -2px; left: 50%; transform: translateX(-50%);
+  width: 80%; height: 3px; background: #ffd700; border-radius: 2px;
+}
+
+/* ===== Глюк-режим (чёрные смайлы) ===== */
+body.glitch-mode .smiley-emoji,
+body.glitch-mode .slot,
+body.glitch-mode .inv-item,
+body.glitch-mode .case-visual,
+body.glitch-mode .case-opening {
+  filter: grayscale(1) brightness(0) !important;
+  transition: filter 0.5s;
+}
+
+/* ===== Адаптив ===== */
+@media (max-height: 640px) {
+  #smiley { font-size: 130px; }
+  .balance { font-size: 22px; }
+  #crashCanvas { height: 140px; }
+  .craft-area { height: 260px; }
+}
