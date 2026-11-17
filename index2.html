@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#3aa9e8">
+<title>Смайлик Кликер 😃</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="game.css">
+<link rel="stylesheet" href="glitch.css">
+<link rel="stylesheet" href="intro.css">
+<!-- ХЭЛЛОУИН: удалить строку ниже, чтобы убрать стили ивента -->
+<link rel="stylesheet" href="halloween.css">
+</head>
+<body>
+
+<!-- ===== ВСТУПЛЕНИЕ (оверлей) ===== -->
+<div id="intro-layer" class="intro-layer">
+  <div class="intro-scene" id="introScene"></div>
+</div>
+
+<header>
+  <div class="balance" id="balance">0 <span class="smile-coin">c</span></div>
+  <div class="stats-block">
+    <div class="stat-pill">⚡ Клик: <b id="statClick">1</b></div>
+    <div class="stat-pill">⏱ CPS: <b id="statCps">0</b></div>
+  </div>
+  <div class="buff-line" id="buffLine"></div>
+</header>
+
+<div class="content" id="content"></div>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<div id="toast-wrap"></div>
+<div id="glitch-layer" class="glitch-layer" hidden></div>
+
+<script src="config.js"></script>
+<script src="state.js"></script>
+<script src="economy.js"></script>
+<script src="api.js"></script>
+<script src="ui.js"></script>
+<script src="intro.js"></script>
+<script src="glitch.js"></script>
+<script src="render-core.js"></script>
+<script src="render-more.js"></script>
+<!-- ХЭЛЛОУИН: удалить строку ниже, чтобы убрать ивент -->
+<script src="halloween.js"></script>
+<script src="admin.js"></script>
+<script src="main.js"></script>
+</body>
+  </html>
