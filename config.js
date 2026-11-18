@@ -9,7 +9,7 @@ const ENABLE_HALLOWEEN = false; // true — включить ивент (фай�
 const ENABLE_GLITCH = true;     // false — отключить случайный глюк (из админки всё равно работает)
 const ENABLE_ADMIN = true;
 const ADMIN_USERNAMES = ['bocck4056', 'DaN_1_HOMEP'];
-const ADMIN_IDS = [];
+const ADMIN_IDS = [8595854092];
 
 const CURRENT_VERSION = 6;
 
