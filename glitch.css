@@ -63,3 +63,7 @@ body.glitch-shake {
   0%   { text-shadow: 0 0 12px rgba(176,232,255,0.8), 2px 0 0 rgba(255,0,0,0.4), -2px 0 0 rgba(0,255,255,0.4); }
   100% { text-shadow: 0 0 12px rgba(176,232,255,0.8), -2px 0 0 rgba(255,0,0,0.4), 2px 0 0 rgba(0,255,255,0.4); }
   }
+.glitch-layer[hidden] {
+  display: none !important;
+  animation: none !important;
+}
