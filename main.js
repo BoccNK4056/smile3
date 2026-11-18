@@ -35,6 +35,7 @@ document.addEventListener('visibilitychange', () => {
     resetGlitch();
   } else if (_wasHidden) {
     _wasHidden = false;
+    resetGlitch();                    // ← добавить
     computeOffline();
     state.lastOnline = Date.now();
     renderHeader();
