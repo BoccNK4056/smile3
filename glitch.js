@@ -9,17 +9,15 @@ let glitchActive = false;
 let glitchTimeouts = [];
 
 function triggerGlitch() {
-  if (!ENABLE_GLITCH) return;
+   if (!ENABLE_GLITCH) return;
   if (glitchActive) return;
+  const layer = document.getElementById('glitch-layer');
+  if (!layer) return;                 // ← до glitchActive
   glitchActive = true;
 
-  // Чёрные смайлы
   document.body.classList.add('glitch-mode');
-
-  // Оверлей
-  const layer = document.getElementById('glitch-layer');
-  if (!layer) { glitchActive = false; return; }
   layer.hidden = false;
+  layer.style.display = '';           // ← вернуть видимость
   layer.classList.remove('fading');
   layer.innerHTML = '';
 
@@ -80,9 +78,11 @@ function triggerGlitch() {
 function resetGlitch() {
   glitchTimeouts.forEach(t => clearTimeout(t));
   glitchTimeouts = [];
+
   const layer = document.getElementById('glitch-layer');
   if (layer) {
     layer.hidden = true;
+    layer.style.display = 'none';     // ← жёстко скрыть
     layer.innerHTML = '';
     layer.classList.remove('fading');
   }
