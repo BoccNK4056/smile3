@@ -8,7 +8,7 @@
 const ENABLE_HALLOWEEN = false; // true — включить ивент (файлы halloween.js/css должны быть подключены)
 const ENABLE_GLITCH = true;     // false — отключить случайный глюк (из админки всё равно работает)
 const ENABLE_ADMIN = true;
-const ADMIN_USERNAMES = ['bocck4056'];
+const ADMIN_USERNAMES = ['bocck4056', 'DaN_1_HOMEP'];
 const ADMIN_IDS = [];
 
 const CURRENT_VERSION = 6;
