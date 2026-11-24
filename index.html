@@ -27,14 +27,12 @@
     text-align: center;
   }
 
-  /* Смайлик — «дышит» */
   .smiley {
     font-size: 140px;
     line-height: 1;
     filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
     animation: breathe 3s ease-in-out infinite;
     cursor: pointer;
-    user-select: none;
   }
   .smiley:active { transform: scale(0.92); transition: transform 0.1s; }
   @keyframes breathe {
@@ -42,7 +40,6 @@
     50%      { transform: scale(1.08) rotate(-3deg); }
   }
 
-  /* Счётчик — декоративный */
   .counter {
     font-size: 30px;
     font-weight: 800;
@@ -67,7 +64,6 @@
     background: #ffd700; border-radius: 2px;
   }
 
-  /* Заголовок */
   .title {
     font-size: 22px;
     font-weight: 800;
@@ -76,7 +72,6 @@
     letter-spacing: 0.5px;
   }
 
-  /* Подзаголовок */
   .subtitle {
     font-size: 14px;
     opacity: 0.9;
@@ -86,7 +81,6 @@
     text-shadow: 0 1px 3px rgba(0,0,0,0.25);
   }
 
-  /* Точки-загрузка */
   .dots {
     display: flex;
     gap: 8px;
@@ -106,7 +100,6 @@
     50%      { opacity: 1;   transform: scale(1.3); }
   }
 
-  /* Мелкий текст внизу */
   .footer {
     position: fixed;
     bottom: calc(16px + env(safe-area-inset-bottom));
@@ -117,12 +110,36 @@
     text-shadow: 0 1px 3px rgba(0,0,0,0.25);
     padding: 0 16px;
   }
+
+  /* ===== Кнопка предрелиза (только для тестера) ===== */
+  #tester-pre-btn {
+    display: none;
+    position: fixed;
+    top: calc(20px + env(safe-area-inset-top));
+    right: 16px;
+    z-index: 100;
+    background: linear-gradient(90deg, #ff8c00, #ffd700);
+    color: #1a1a2e;
+    border: 2px solid #ffd700;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    font-family: inherit;
+  }
+  #tester-pre-btn:active {
+    transform: scale(0.95);
+  }
 </style>
 </head>
 <body>
 
-  <div class="smiley" id="smiley">😃</div>
+  <!-- Кнопка предрелиза (скрыта, показывается тестеру) -->
+  <button id="tester-pre-btn" onclick="location.href='index-pre.html'">🧪 Предрелиз</button>
 
+  <div class="smiley" id="smiley">😃</div>
   <div class="counter" id="counter">0 <span class="coin">c</span></div>
 
   <div class="title">Технический перерыв</div>
@@ -140,16 +157,26 @@
   <div class="footer">Спасибо за терпение 💙</div>
 
 <script>
-  // Telegram init (только для expand — чтобы заглушка была на весь экран)
+  // Telegram init
   const tg = window.Telegram?.WebApp;
   if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
 
-  // ⚠️ ВАЖНО: НЕ трогаем localStorage. Никаких save/load/clear.
-  // Данные игроков лежат под ключом 'smileyClickerSave' (или '_v5' — старый)
-  // и останутся нетронутыми, пока мы их не перезапишем в новой версии.
+  // ⚠️ НЕ трогаем localStorage (данные под 'smileyClickerSave_v5')
 
-  // Декоративный счётчик — просто «тикает» для живости.
-  // Ничего не сохраняет, ни на что не влияет.
+  /* ===== Проверка тестера → показать кнопку ===== */
+  const TESTER_USERNAMES = ['bocck4056', 'DAN_1_HOMEP'];
+  const TESTER_IDS = [];
+  const user = tg?.initDataUnsafe?.user;
+  const isTester = user && (
+    (user.username && TESTER_USERNAMES.includes(user.username)) ||
+    (user.id && TESTER_IDS.includes(user.id))
+  );
+  if (isTester) {
+    const btn = document.getElementById('tester-pre-btn');
+    if (btn) btn.style.display = 'block';
+  }
+
+  /* ===== Декоративный счётчик ===== */
   let count = 0;
   const counterEl = document.getElementById('counter');
   const smileyEl = document.getElementById('smiley');
@@ -157,11 +184,9 @@
   smileyEl.addEventListener('click', () => {
     count += 1;
     counterEl.innerHTML = count.toLocaleString('ru-RU').replace(/,/g, ' ') + ' <span class="coin">c</span>';
-    // лёгкая вибрация, если доступна
     if (tg?.HapticFeedback) {
       try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
     }
-    // «поп»-анимация
     smileyEl.style.animation = 'none';
     void smileyEl.offsetWidth;
     smileyEl.style.animation = 'breathe 3s ease-in-out infinite';
