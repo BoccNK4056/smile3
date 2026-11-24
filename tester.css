@@ -1,0 +1,47 @@
+/* ============================================================
+   TESTER — панель тестера: консоль, логи, state
+============================================================ */
+
+#testerConsole,
+#testerActions,
+#testerState {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  color: #e0e0e0;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+}
+
+#testerConsole div,
+#testerActions div {
+  padding: 2px 0;
+}
+
+#testerState {
+  color: #b0e8ff;
+  line-height: 1.4;
+}
+
+/* Кнопки в тестер-панели */
+#testerPre {
+  background: linear-gradient(90deg, #ff8c00, #ffd700);
+  border-color: #ffd700;
+  color: #1a1a2e;
+  font-weight: 800;
+  text-shadow: none;
+}
+#testerPre:active {
+  transform: scale(0.97);
+}
+
+/* Скроллбары */
+#testerConsole::-webkit-scrollbar,
+#testerActions::-webkit-scrollbar,
+#testerState::-webkit-scrollbar {
+  width: 6px;
+}
+#testerConsole::-webkit-scrollbar-thumb,
+#testerActions::-webkit-scrollbar-thumb,
+#testerState::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
