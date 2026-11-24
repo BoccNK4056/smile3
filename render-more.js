@@ -1,9 +1,10 @@
 /* ============================================================
    RENDER MORE — games, crash, craft, cases, settings
+   + Elo, бусты, эльф, ранг
 ============================================================ */
 
 /* ============================================================
-   GAMES — меню игр
+   GAMES
 ============================================================ */
 function renderGames() {
   if (!content) return;
@@ -25,7 +26,7 @@ function renderGames() {
 }
 
 /* ============================================================
-   CRASH
+   CRASH — с бустом удачи
 ============================================================ */
 let crash = { active: false, bet: 0, mult: 1, crashAt: 0, rafId: null, startTime: 0, points: [], crashed: false };
 
@@ -36,6 +37,11 @@ function renderCrash() {
     ? hist.map(m => `<span class="${m >= 2 ? 'high' : 'low'}">${m.toFixed(2)}x</span>`).join('')
     : '<span style="opacity:0.6;border-color:transparent">пока нет раундов</span>';
 
+  // Буст удачи
+  const active = getActiveBoosts();
+  const luckBoost = active['crash3'] ? 3 : 1;
+  const luckLine = luckBoost > 1 ? `<div class="card-sub" style="text-align:center;color:#4cd964;margin-bottom:6px">🚀 Удача ×3 активна!</div>` : '';
+
   content.innerHTML = `
     <div class="section-title">🚀 Краш · история</div>
     <div class="crash-history">${histHTML}</div>
@@ -43,6 +49,7 @@ function renderCrash() {
       <canvas id="crashCanvas"></canvas>
       <div class="crash-mult" id="crashMult">1.00x</div>
     </div>
+    ${luckLine}
     <div class="bet-input-row">
       <input id="crashBet" type="number" min="100" value="${state.quickBets[0]}" placeholder="ставка">
     </div>
@@ -92,7 +99,6 @@ function drawCrashChart() {
   const pts = crash.points;
   if (pts.length < 2) return;
 
-  // Фикс: не «прыгать» при shift — мапим по первому x
   const x0 = pts[0].x;
   const xN = pts[pts.length - 1].x;
   const maxX = Math.max(xN - x0, 10);
@@ -127,10 +133,16 @@ function drawCrashChart() {
 }
 
 function generateCrashPoint() {
-  // Честная формула с house edge 2%, cap 100x
+  // Буст удачи — сдвигаем распределение
+  const active = getActiveBoosts();
+  const luck = active['crash3'] ? 3 : 1;
+
   const r = Math.random();
   if (r === 0) return CRASH_MIN_MULT;
+
   let point = (1 - CRASH_HOUSE_EDGE) / (1 - r);
+  // Удача: повышаем шанс высокого краша
+  if (luck > 1) point *= (1 + (luck - 1) * 0.3);
   if (point < CRASH_MIN_MULT) point = CRASH_MIN_MULT;
   if (point > CRASH_MAX_MULT) point = CRASH_MAX_MULT;
   return point;
@@ -205,6 +217,7 @@ function cashOut() {
   state.balance += win;
   setStatMax('crashBest', crash.mult);
   bumpDaily('dCrashWin');
+  addElo(ELO_REWARDS.eventAction);
 
   const multEl = document.getElementById('crashMult');
   if (multEl) multEl.textContent = '✅ ' + crash.mult.toFixed(2) + 'x';
@@ -217,7 +230,7 @@ function cashOut() {
 }
 
 /* ============================================================
-   CRAFT — рецепты + QTE-бонус
+   CRAFT — рецепты + QTE-бонус + Elo
 ============================================================ */
 let craftSession = null;
 
@@ -256,7 +269,6 @@ function startCraftRecipe(idx) {
   const r = CRAFT_RECIPES[idx];
   if (!r) return;
 
-  // Проверка: смайлы на полке?
   const onShelf = state.shelf.some(s => {
     if (!s) return false;
     if (r.from === 'any') return !!SMILEYS[s];
@@ -264,7 +276,6 @@ function startCraftRecipe(idx) {
   });
   if (onShelf) { toast('Сними нужные смайлы с полки перед крафтом'); return; }
 
-  // Есть ли нужное количество?
   const pool = state.inventory.filter(s => {
     if (r.from === 'any') return !!SMILEYS[s];
     return SMILEYS[s]?.tier === r.from;
@@ -329,7 +340,6 @@ function finishCraft() {
   const success = hits >= CRAFT_QTE_NEEDED;
   craftSession = null;
 
-  // Списываем смайлы
   let need = recipe.fromCount;
   for (let i = state.inventory.length - 1; i >= 0 && need > 0; i--) {
     const s = state.inventory[i];
@@ -337,7 +347,6 @@ function finishCraft() {
     if (isMatch) { state.inventory.splice(i, 1); need--; }
   }
 
-  // Выдаём результат
   let pool;
   if (recipe.to === 'gold') pool = GOLD_SMILEYS;
   else if (recipe.to === 'legendary') pool = LEGENDARY_SMILEYS;
@@ -355,10 +364,8 @@ function finishCraft() {
     toast(`✅ Крафт: ${drop}!`);
   }
 
-  // Бонус за QTE
   if (success) {
-    const bonusPool = pool;
-    const bonus = bonusPool[Math.floor(Math.random() * bonusPool.length)];
+    const bonus = pool[Math.floor(Math.random() * pool.length)];
     if (!state.inventory.includes(bonus)) {
       state.inventory.push(bonus);
       toast(`🎯 QTE-бонус: ${bonus}!`);
@@ -373,13 +380,14 @@ function finishCraft() {
 
   bumpStat('crafts');
   bumpDaily('dCrafts');
+  addElo(ELO_REWARDS.craft);
   saveState();
   renderCraft();
   renderHeader();
 }
 
 /* ============================================================
-   CASES
+   CASES — + Elo, ice-whisper
 ============================================================ */
 function renderCases() {
   if (!content) return;
@@ -451,12 +459,20 @@ function openCase(kind) {
       }
     } else {
       const drops = { normal: NORMAL_DROPS, gold: GOLD_DROPS, legendary: LEGENDARY_DROPS, thematic: THEMATIC_DROPS }[kind];
-      const roll = pickByWeight(drops);
+      let roll = pickByWeight(drops);
+
+      // Буст дропа — шанс повысить редкость
+      const active = getActiveBoosts();
+      if (active['drop50'] && Math.random() < 0.5) {
+        // Повышаем редкость (если возможно)
+        if (kind === 'normal') roll = pickByWeight(GOLD_DROPS);
+        else if (kind === 'gold') roll = pickByWeight(LEGENDARY_DROPS);
+      }
+
       const isDup = state.inventory.includes(roll);
       let refund = getCaseRefund(kind);
       if (shelfBuffs().hasBlood) refund *= 2;
 
-      // Пасхалка «лёд»
       if (roll === '🧊') {
         const whisper = ICE_WHISPERS[Math.floor(Math.random() * ICE_WHISPERS.length)];
         iceWhisper = `<div class="ice-whisper">"${whisper}"</div>`;
@@ -477,6 +493,7 @@ function openCase(kind) {
 
     bumpStat('cases');
     bumpDaily('dCases');
+    addElo(ELO_REWARDS.caseOpen);
 
     content.innerHTML = `<div class="section-title">📦 Результат</div>${resultHTML}<button class="btn big" id="againBtn" style="width:100%;margin-top:10px">Ещё раз</button><button class="btn" id="backBtn" style="width:100%;margin-top:8px">Назад в кейсы</button>`;
 
@@ -490,7 +507,7 @@ function openCase(kind) {
 }
 
 /* ============================================================
-   SETTINGS
+   SETTINGS — эльф, ранг, темы, анимки
 ============================================================ */
 function renderSettings() {
   if (!content) return;
@@ -498,18 +515,20 @@ function renderSettings() {
 
   html.push(`<div class="section-title">⚙️ Настройки</div>`);
 
-  // Аккаунт
+  /* Аккаунт */
   html.push(`<div class="section-title">👤 Аккаунт</div>`);
   if (TG_USER) {
     const avatarInner = TG_USER.photo_url ? `<img src="${TG_USER.photo_url}" alt="">` : '👤';
     const name = [TG_USER.first_name, TG_USER.last_name].filter(Boolean).join(' ') || 'Без имени';
     const uname = TG_USER.username ? '@' + TG_USER.username : '(без username)';
+    const rank = getRank(state.elo);
     html.push(`
       <div class="acc-card">
         <div class="acc-avatar">${avatarInner}</div>
         <div class="acc-info">
           <div class="acc-name">${name} ${IS_ADMIN ? '<span class="acc-admin-badge">👑 Админ</span>' : ''}</div>
           <div class="acc-id">${uname} · ID: ${TG_USER.id}</div>
+          <div class="acc-balance">${rank.emoji} ${rank.name} · Elo: ${fmt(state.elo)}</div>
           <div class="acc-balance">Баланс: ${fmt(state.balance)} ${coinIcon()}</div>
         </div>
       </div>
@@ -523,17 +542,24 @@ function renderSettings() {
     html.push(`<div id="adminPanel"></div>`);
   }
 
-  // Вибрация
+  /* Вибрация */
   html.push(`<div class="section-title" style="margin-top:14px">📳 Вибрация</div>`);
   html.push(`<div class="toggle-row"><div><div class="card-title">Вибрация</div><div class="card-sub">Тактильный отклик</div></div><div class="toggle ${state.vibrateEnabled ? 'on' : ''}" id="vibToggle"></div></div>`);
 
-  // Темы
+  /* Эльф */
+  html.push(`<div class="section-title" style="margin-top:14px">🧝 Эльф</div>`);
+  html.push(`<div class="toggle-row"><div><div class="card-title">Эльф на экране</div><div class="card-sub">Показывать помощника</div></div><div class="toggle ${state.elfEnabled ? 'on' : ''}" id="elfToggleSettings"></div></div>`);
+
+  /* Темы */
   html.push(`<div class="section-title" style="margin-top:14px">🎨 Темы</div><div class="theme-grid">`);
   const defActive = state.activeTheme === 'default' || !state.activeTheme;
   html.push(`<div class="theme-card theme-default-preview ${defActive ? 'active' : ''}" data-theme="default"><div class="big-emoji">💧</div><div>Голубая</div></div>`);
 
   const allThemes = [...THEMES];
-  if (ENABLE_HALLOWEEN && state.themesOwned.includes('halloween')) allThemes.push('halloween');
+  // Хэллоуин — если куплена
+  if (state.themesOwned.includes('halloween')) allThemes.push('halloween');
+  // Время — если куплена
+  if (state.themesOwned.includes('time')) allThemes.push('time');
 
   for (const t of allThemes) {
     const owned = state.themesOwned.includes(t);
@@ -543,7 +569,7 @@ function renderSettings() {
   }
   html.push(`</div>`);
 
-  // Анимки
+  /* Анимки */
   html.push(`<div class="section-title">🎬 Анимка клика</div><div class="anim-grid">`);
   html.push(`<div class="anim-card ${state.clickAnimation === 'default' ? 'active' : ''}" data-anim="default"><div class="big-emoji">😃</div><div>Стандарт</div></div>`);
   const spidersOwned = state.animationsOwned.includes('spiders');
@@ -552,12 +578,19 @@ function renderSettings() {
 
   content.innerHTML = html.join('');
 
-  // Обработчики
   const vibT = document.getElementById('vibToggle');
   if (vibT) vibT.addEventListener('click', () => {
     state.vibrateEnabled = !state.vibrateEnabled;
     vibT.classList.toggle('on', state.vibrateEnabled);
     if (state.vibrateEnabled) vibrate('medium');
+    saveState();
+  });
+
+  const elfT = document.getElementById('elfToggleSettings');
+  if (elfT) elfT.addEventListener('click', () => {
+    state.elfEnabled = !state.elfEnabled;
+    elfT.classList.toggle('on', state.elfEnabled);
+    if (typeof renderStuffOnScreen === 'function') renderStuffOnScreen();
     saveState();
   });
 
