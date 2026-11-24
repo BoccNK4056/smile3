@@ -1,6 +1,24 @@
 /* ============================================================
-   ECONOMY — расчёты: клик, CPS, баффы, цены, оффлайн
+   ECONOMY — расчёты: клик, CPS, баффы, цены, оффлайн, бусты
 ============================================================ */
+
+/* ============================================================
+   БУСТЫ — множители
+============================================================ */
+function getBoostMultipliers() {
+  const active = (typeof getActiveBoosts === 'function') ? getActiveBoosts() : {};
+  let clickMul = 1;
+  let cpsMul = 1;
+  let crashLuck = 1;
+  let dropBonus = 0;
+
+  if (active['click5']) clickMul *= 5;
+  if (active['cps2']) cpsMul *= 2;
+  if (active['crash3']) crashLuck *= 3;
+  if (active['drop50']) dropBonus += 0.5;
+
+  return { clickMul, cpsMul, crashLuck, dropBonus };
+}
 
 /* ============================================================
    БАЗОВЫЕ ЗНАЧЕНИЯ
@@ -29,7 +47,6 @@ function shelfBuffs() {
   for (const slot of state.shelf) {
     if (!slot) continue;
 
-    // HALLOWEEN предметы (только если ивент включён)
     if (ENABLE_HALLOWEEN && HALLOWEEN_ITEMS[slot]) {
       if (slot === '🎭') {
         hasMask = true;
@@ -46,7 +63,6 @@ function shelfBuffs() {
       continue;
     }
 
-    // Смайлы
     const meta = SMILEYS[slot];
     if (!meta) continue;
 
@@ -68,18 +84,23 @@ function shelfBuffs() {
   return { clickMul, cpsMul, candyMul, hasGhost, hasBlood, hasZombie, hasVampire, hasMask, clickExtra, cpsExtra, offlineExtra };
 }
 
+/* ============================================================
+   ИТОГОВЫЕ ЗНАЧЕНИЯ — с учётом бустов
+============================================================ */
 function totalClickPower() {
   const b = shelfBuffs();
-  return Math.max(0, baseClickPower() * (1 + b.clickMul + b.clickExtra));
+  const boost = getBoostMultipliers();
+  return Math.max(0, baseClickPower() * (1 + b.clickMul + b.clickExtra) * boost.clickMul);
 }
 
 function totalCps() {
   const b = shelfBuffs();
-  return Math.max(0, baseCps() * (1 + b.cpsMul + b.cpsExtra));
+  const boost = getBoostMultipliers();
+  return Math.max(0, baseCps() * (1 + b.cpsMul + b.cpsExtra) * boost.cpsMul);
 }
 
 /* ============================================================
-   HALLOWEEN: конфеты (если ивент выключен — 0)
+   HALLOWEEN: конфеты
 ============================================================ */
 function candyClickPower() {
   if (!ENABLE_HALLOWEEN || !state.halloween) return 0;
@@ -128,7 +149,6 @@ function getUpgradePrice(u) {
   return price;
 }
 
-/* Цена за N уровней (сумма геометрической прогрессии) */
 function getUpgradePriceForN(u, n) {
   if (state.adminFree) return 0;
   n = Math.max(1, Math.floor(n));
@@ -138,7 +158,6 @@ function getUpgradePriceForN(u, n) {
   if (isFrozen()) {
     total = Math.ceil(u.base * n);
   } else {
-    // S = base * 1.15^lvl * (1.15^n - 1) / 0.15
     const first = u.base * Math.pow(1.15, lvl);
     total = Math.ceil(first * (Math.pow(1.15, n) - 1) / 0.15);
   }
@@ -147,7 +166,6 @@ function getUpgradePriceForN(u, n) {
   return total;
 }
 
-/* Сколько уровней можно купить на текущий баланс */
 function getMaxAffordable(u) {
   if (state.adminFree) return 999;
   const lvl = state.upgrades[u.id] || 0;
@@ -160,8 +178,6 @@ function getMaxAffordable(u) {
 
   const first = u.base * Math.pow(1.15, lvl);
   if (first <= 0) return 0;
-  // S = first * (1.15^n - 1) / 0.15 <= balance
-  // 1.15^n <= 1 + balance * 0.15 / first
   const factor = 1 + (state.balance * 0.15) / first;
   if (factor < 1) return 0;
   const n = Math.floor(Math.log(factor) / Math.log(1.15));
@@ -201,7 +217,6 @@ function getCaseRefund(kind) {
   return CASE_REFUND;
 }
 
-/* HALLOWEEN: цена апгрейда конфет */
 function getHalloweenUpgradePrice(u) {
   if (state.adminFree) return 0;
   if (!state.halloween) return 0;
@@ -216,10 +231,7 @@ function offlineCapTotal() {
   let cap = 0;
   for (const slot of state.shelf) {
     if (!slot) continue;
-    if (ENABLE_HALLOWEEN && HALLOWEEN_ITEMS[slot]) {
-      // у вампира нет cap, только mul
-      continue;
-    }
+    if (ENABLE_HALLOWEEN && HALLOWEEN_ITEMS[slot]) continue;
     const meta = SMILEYS[slot];
     if (meta && meta.offline) cap += meta.offline.cap;
   }
@@ -231,25 +243,17 @@ function offlineMulTotal() {
   let mul = 0;
   for (const slot of state.shelf) {
     if (!slot) continue;
-
-    // HALLOWEEN: вампир даёт offlineMul
     if (ENABLE_HALLOWEEN && HALLOWEEN_ITEMS[slot]) {
       const it = HALLOWEEN_ITEMS[slot];
       if (it.buff.offlineMul) mul += it.buff.offlineMul;
       continue;
     }
-
     const meta = SMILEYS[slot];
     if (meta && meta.offline) mul += meta.offline.mul;
   }
-  // hasVampire уже учтён выше (если вампир на полке, его offlineMul добавлен).
-  // Не удваиваем повторно.
   return mul;
 }
 
-/* ============================================================
-   ВЫЧИСЛЕНИЕ ОФФЛАЙНА
-============================================================ */
 function computeOffline() {
   const now = Date.now();
   const last = state.lastOnline || now;
@@ -258,9 +262,10 @@ function computeOffline() {
   let maxMs = OFFLINE_MAX_MS + b.offlineExtra;
   let dt = Math.min(now - last, maxMs);
 
-  if (dt < 10 * 1000) return; // меньше 10 секунд не считаем
-  if (b.hasGhost) return; // призрак блокирует
+  if (dt < 10 * 1000) return;
+  if (b.hasGhost) return;
 
+  // CPS с бустами (но бусты временные — оффлайн считаем без них, чтобы не абузили)
   const cps = baseCps() * (1 + b.cpsMul + b.cpsExtra);
   if (cps <= 0) return;
 
@@ -273,4 +278,15 @@ function computeOffline() {
   earned = Math.floor(earned);
 
   if (earned > 0) state.pendingOffline += earned;
+}
+
+/* ============================================================
+   СЕРИЯ 🔥 (хелпер для отображения)
+============================================================ */
+function getFireStreakInfo() {
+  return {
+    streak: state.fireStreak || 0,
+    active: state.shelf.includes('🔥'),
+    lastDate: state.lastFireDate || '',
+  };
     }
