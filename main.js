@@ -1,5 +1,5 @@
 /* ============================================================
-   MAIN — boot, tabs, loop, оффлайн-хуки
+   MAIN — boot, tabs, loop, оффлайн-хуки, бусты, подарки
 ============================================================ */
 
 /* ============================================================
@@ -10,8 +10,8 @@ if (tabsEl) {
     const btn = e.target.closest('.tab');
     if (!btn) return;
     if (btn.dataset.tab === 'event' && !ENABLE_HALLOWEEN) return;
+    if (btn.dataset.tab === 'tester' && !IS_TESTER) return;
 
-    // Авто-кэшаут краша при смене таба
     if (currentTab === 'crash' && typeof crash !== 'undefined' && crash.active) {
       cashOut();
     }
@@ -32,10 +32,10 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     _wasHidden = true;
     saveState();
-    resetGlitch();
+    if (typeof resetGlitch === 'function') resetGlitch();
   } else if (_wasHidden) {
     _wasHidden = false;
-    resetGlitch();                    // ← добавить
+    if (typeof resetGlitch === 'function') resetGlitch();
     computeOffline();
     state.lastOnline = Date.now();
     renderHeader();
@@ -47,7 +47,7 @@ document.addEventListener('visibilitychange', () => {
 
 window.addEventListener('pagehide', () => {
   saveState();
-  resetGlitch();
+  if (typeof resetGlitch === 'function') resetGlitch();
 });
 
 window.addEventListener('beforeunload', () => {
@@ -70,8 +70,6 @@ setInterval(() => {
   const now = Date.now();
   let dt = (now - lastTick) / 1000;
   lastTick = now;
-
-  // Защита от троттлинга в фоне
   if (dt > 5) dt = 5;
 
   const cps = totalCps();
@@ -95,14 +93,27 @@ setInterval(() => {
 
 /* ============================================================
    SAVE — каждые 5 секунд + обновление магазина
+   ФИКС: не пересоздавать shop, если открыт input
 ============================================================ */
 setInterval(() => {
   saveState();
-  if (currentTab === 'shop') renderShop();
+  if (currentTab === 'shop') {
+    const active = document.activeElement;
+    if (!active || active.tagName !== 'INPUT') {
+      renderShop();
+    }
+  }
 }, 5000);
 
 /* ============================================================
-   GLITCH — случайный триггер (1 сек)
+   BOOSTS — тик каждую секунду
+============================================================ */
+setInterval(() => {
+  if (typeof tickBoostsUI === 'function') tickBoostsUI();
+}, 1000);
+
+/* ============================================================
+   GLITCH — случайный триггер
 ============================================================ */
 setInterval(() => {
   if (typeof maybeRandomGlitch === 'function') maybeRandomGlitch();
@@ -114,9 +125,27 @@ setInterval(() => {
 ensureDaily();
 computeOffline();
 buildTabs();
+
+/* Сброс @DAN_1_HOMEP — одноразово */
+if (typeof checkDanReset === 'function') checkDanReset();
+
+/* Capture console для тестера */
+if (typeof IS_TESTER !== 'undefined' && IS_TESTER && typeof captureConsole === 'function') {
+  captureConsole();
+}
+
+/* Запуск спавна подарков */
+if (typeof startGiftSpawner === 'function') startGiftSpawner();
+
+/* Отрисовка */
 render();
 
-/* Компенсация Хэллоуина — модалка при первом входе */
+/* Эльф на экране */
+if (typeof renderStuffOnScreen === 'function') {
+  setTimeout(() => renderStuffOnScreen(), 1000);
+}
+
+/* Компенсация Хэллоуина */
 if (state.compensationAmount > 0 && !state.compensationShown) {
   setTimeout(() => {
     showModal({
@@ -135,7 +164,7 @@ if (state.compensationAmount > 0 && !state.compensationShown) {
   }, 500);
 }
 
-/* Модалка оффлайна — если что-то накопилось */
+/* Тост оффлайна */
 if (state.pendingOffline > 0) {
   setTimeout(() => {
     if (currentTab !== 'bank') {
