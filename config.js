@@ -8,8 +8,8 @@
 const ENABLE_HALLOWEEN = false; // true — включить ивент (файлы halloween.js/css должны быть подключены)
 const ENABLE_GLITCH = true;     // false — отключить случайный глюк (из админки всё равно работает)
 const ENABLE_ADMIN = true;
-const ADMIN_USERNAMES = ['bocck4056', 'DaN_1_HOMEP'];
-const ADMIN_IDS = [8595854092];
+const ADMIN_USERNAMES = ['bocck4056'];
+const ADMIN_IDS = [];
 
 const CURRENT_VERSION = 6;
 
@@ -361,7 +361,7 @@ const ADVENT_REWARDS = [
 ];
 
 /* ===== НОВОГОДНИЙ ИВЕНТ ===== */
-const NEWYEAR_START = new Date('2026-12-20T00:00:00').getTime();
+const NEWYEAR_START = new Date('2026-11-24T00:00:00').getTime();
 const NEWYEAR_END   = new Date('2027-01-10T23:59:59').getTime();
 const NEWYEAR_GIFT_LIMIT = 10;           // макс. подарков на экране
 const NEWYEAR_GIFT_SPAWN_MS = 30000;      // проверка спавна раз в 30 сек
