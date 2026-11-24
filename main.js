@@ -172,3 +172,9 @@ if (state.pendingOffline > 0) {
     }
   }, 1500);
 }
+
+setInterval(() => {
+  if (state.activeTheme === 'time') {
+    document.body.classList.toggle('time-flipped');
+  }
+}, 120000);
