@@ -395,3 +395,6 @@ const DAILY_SHOP_POOL = [
   { type: 'smiley', smiley: '💎', price: 10000000 },
   { type: 'smiles', amount: 100000, price: 150000 },
 ];
+
+Object.assign(CODES, NEWYEAR_CODES);
+THEME_NAMES.time = '⏳ Время';
