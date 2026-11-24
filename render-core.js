@@ -1,5 +1,7 @@
 /* ============================================================
    RENDER CORE — header, tabs, main, shop, shelf, bank
+   + новые вкладки: tester, boosts, stuff, advent, daily-shop, rank
+   + фикс полей ввода, спавн подарков, тема «Время»
 ============================================================ */
 
 const content = document.getElementById('content');
@@ -28,6 +30,26 @@ function renderHeader() {
   if (b.hasGhost) parts.push('призрак: оффлайн ✕');
   if (b.hasZombie) parts.push('зомби: цены +25%');
 
+  // Активные бусты
+  if (typeof getActiveBoosts === 'function') {
+    const ab = getActiveBoosts();
+    for (const id of Object.keys(ab)) {
+      const left = Math.ceil(ab[id] / 60000);
+      parts.push(`⚡ ${BOOSTS[id].name} (${left}м)`);
+    }
+  }
+
+  // Серия 🔥
+  if (state.shelf.includes('🔥') && state.fireStreak > 0) {
+    parts.push(`🔥 серия: ${state.fireStreak} дн.`);
+  }
+
+  // Ранг
+  if (typeof getRank === 'function') {
+    const r = getRank(state.elo);
+    parts.push(`${r.emoji} ${r.name}`);
+  }
+
   const offMul = offlineMulTotal();
   if (offMul > 0 && !b.hasGhost) parts.push(`оффлайн ×${offMul.toFixed(2)}`);
 
@@ -49,8 +71,14 @@ function buildTabs() {
     { id: 'bank', label: '🏦 Банк' },
     { id: 'games', label: '🎮 Игры' },
     { id: 'cases', label: '📦 Кейсы' },
+    { id: 'boosts', label: '⚡ Бусты' },
+    { id: 'stuff', label: '🧸 Stuff' },
+    { id: 'advent', label: '🎄 Адвент' },
+    { id: 'daily-shop', label: '🛍️ Ежедневный' },
+    { id: 'rank', label: '💎 Ранг' },
   ];
   if (ENABLE_HALLOWEEN) tabs.push({ id: 'event', label: '🎃 Ивент' });
+  if (typeof IS_TESTER !== 'undefined' && IS_TESTER) tabs.push({ id: 'tester', label: '🧪 Тестер' });
   tabs.push({ id: 'settings', label: '⚙️ Настройки' });
 
   if (tabsEl) {
@@ -66,7 +94,7 @@ function renderTabs() {
 }
 
 /* ============================================================
-   RENDER — главный роутер
+   RENDER
 ============================================================ */
 function render() {
   applyTheme();
@@ -74,22 +102,28 @@ function render() {
   renderTabs();
 
   switch (currentTab) {
-    case 'main':     renderMain(); break;
-    case 'shop':     renderShop(); break;
-    case 'shelf':    renderShelf(); break;
-    case 'bank':     renderBank(); break;
-    case 'games':    renderGames(); break;
-    case 'cases':    renderCases(); break;
-    case 'event':    if (ENABLE_HALLOWEEN && typeof renderEvent === 'function') renderEvent(); else renderMain(); break;
-    case 'settings': renderSettings(); break;
-    default:         renderMain(); break;
+    case 'main':       renderMain(); break;
+    case 'shop':       renderShop(); break;
+    case 'shelf':      renderShelf(); break;
+    case 'bank':       renderBank(); break;
+    case 'games':      renderGames(); break;
+    case 'cases':      renderCases(); break;
+    case 'boosts':     renderBoosts(); break;
+    case 'stuff':      renderStuff(); break;
+    case 'advent':     renderAdvent(); break;
+    case 'daily-shop': renderDailyShop(); break;
+    case 'rank':       renderRank(); break;
+    case 'event':      if (ENABLE_HALLOWEEN && typeof renderEvent === 'function') renderEvent(); else renderMain(); break;
+    case 'tester':     if (typeof renderTester === 'function' && IS_TESTER) renderTester(); else renderMain(); break;
+    case 'settings':   renderSettings(); break;
+    default:           renderMain(); break;
   }
 
   saveState();
 }
 
 /* ============================================================
-   MAIN
+   MAIN — + шанс подарка из кнопки
 ============================================================ */
 function renderMain() {
   if (!content) return;
@@ -104,13 +138,18 @@ function renderMain() {
 }
 
 function onSmileyClick(e) {
+  // Шанс подарка из кнопки
+  if (typeof isNewYear === 'function' && isNewYear() && Math.random() < NEWYEAR_BUTTON_CHANCE) {
+    if (typeof spawnGift === 'function') spawnGift();
+  }
+
   const gain = totalClickPower();
   state.balance += gain;
   bumpStat('clicks');
   bumpDaily('dClicks');
+  addElo(ELO_REWARDS.click);
   vibrate('light');
 
-  // HALLOWEEN: конфеты за клик
   if (ENABLE_HALLOWEEN) {
     const cc = candyClickPower();
     if (cc > 0) {
@@ -148,7 +187,7 @@ function onSmileyClick(e) {
 }
 
 /* ============================================================
-   SHOP — апгрейды с полями ввода
+   SHOP — фикс полей ввода
 ============================================================ */
 function renderShop() {
   if (!content) return;
@@ -171,7 +210,6 @@ function renderShop() {
 
   content.innerHTML = html.join('');
 
-  // Кнопки покупки N
   content.querySelectorAll('[data-buy]').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.buy;
@@ -180,7 +218,6 @@ function renderShop() {
     });
   });
 
-  // Пресеты и ручной ввод
   content.querySelectorAll('[data-upg-input]').forEach(input => {
     input.addEventListener('input', () => updateBuyRow(input));
   });
@@ -268,7 +305,7 @@ function buyShelfSlot() {
 }
 
 /* ============================================================
-   SHELF — полка и инвентарь
+   SHELF
 ============================================================ */
 function itemMeta(s) {
   if (ENABLE_HALLOWEEN && HALLOWEEN_ITEMS[s]) return HALLOWEEN_ITEMS[s];
@@ -299,6 +336,10 @@ function renderShelf() {
   });
   html.push(`</div>`);
 
+  if (state.shelf.includes('🔥') && state.fireStreak > 0) {
+    html.push(`<div class="card-sub" style="text-align:center;margin:8px 0;color:#ffb347">🔥 Серия заходов: ${state.fireStreak} дн.</div>`);
+  }
+
   html.push(`<div class="section-title" style="margin-top:14px">🎒 Смайлы (${state.inventory.length}) · долгий тап = статы</div>`);
   if (state.inventory.length === 0) {
     html.push(`<div class="empty-msg">Пока пусто.<br>Открой кейс во вкладке «Кейсы»!</div>`);
@@ -312,7 +353,6 @@ function renderShelf() {
     html.push(`</div>`);
   }
 
-  // HALLOWEEN-предметы (только если ивент включён)
   if (ENABLE_HALLOWEEN && state.halloween) {
     const halItems = Object.keys(state.halloween.items).filter(k => state.halloween.items[k]);
     html.push(`<div class="section-title" style="margin-top:14px">🎃 Хэллоуин-предметы (${halItems.length})</div>`);
@@ -336,6 +376,10 @@ function renderShelf() {
       const i = +el.dataset.slot;
       if (state.shelf[i]) {
         const removed = state.shelf[i];
+        // Защита от случайного снятия 🔥
+        if (removed === '🔥' && state.fireStreak > 0) {
+          if (!confirm(`Снять 🔥? Серия (${state.fireStreak} дн.) сохранится, но перестанет расти.`)) return;
+        }
         state.shelf[i] = null;
         vibrate('light');
         toast(`Снято с полки: ${removed}`);
@@ -368,6 +412,9 @@ function renderShelf() {
 
       const idx = state.shelf.indexOf(s);
       if (idx !== -1) {
+        if (s === '🔥' && state.fireStreak > 0) {
+          if (!confirm(`Снять 🔥? Серия (${state.fireStreak} дн.) сохранится, но перестанет расти.`)) return;
+        }
         state.shelf[idx] = null;
         vibrate('light');
         toast(`Снято с полки: ${s}`);
@@ -424,6 +471,9 @@ function openSmileyModal(s) {
     label: onShelf ? 'Снять с полки' : 'Поставить на полку',
     onClick: () => {
       if (onShelf) {
+        if (s === '🔥' && state.fireStreak > 0) {
+          if (!confirm(`Снять 🔥? Серия (${state.fireStreak} дн.) сохранится.`)) return;
+        }
         const idx = state.shelf.indexOf(s);
         state.shelf[idx] = null;
         vibrate('light');
@@ -471,7 +521,7 @@ function openSmileyModal(s) {
 }
 
 /* ============================================================
-   BANK — награды, ежедневки, копилка, достижения, коды
+   BANK
 ============================================================ */
 function renderBank() {
   if (!content) return;
@@ -479,7 +529,7 @@ function renderBank() {
 
   html.push(`<div class="section-title">🏦 Банк</div>`);
 
-  /* ===== Копилка оффлайна ===== */
+  /* Копилка */
   html.push(`<div class="section-title">🐷 Копилка оффлайна</div>`);
   const capTotal = offlineCapTotal();
   const hasGhost = shelfBuffs().hasGhost;
@@ -514,7 +564,7 @@ function renderBank() {
     </div>
   `);
 
-  /* ===== Ежедневные награды ===== */
+  /* Ежедневные награды — ребаланс */
   html.push(`<div class="section-title" style="margin-top:14px">🎁 Ежедневные награды · серия: ${state.rewardDay}/7</div>`);
   const now = Date.now();
   const DAY = 24 * 60 * 60 * 1000;
@@ -526,21 +576,29 @@ function renderBank() {
   if (today !== lastVisitDay) state.lastVisit = today;
 
   const lastClaimDay = state.lastRewardClaim ? (() => { const d = new Date(state.lastRewardClaim); d.setHours(0, 0, 0, 0); return d.getTime(); })() : 0;
-  const canClaim = lastClaimDay !== today && state.rewardDay < REWARDS.length;
+  const canClaim = lastClaimDay !== today && state.rewardDay < (state.daily.rewards.length || REWARDS.length);
+
+  const rewards = (state.daily.rewards && state.daily.rewards.length) ? state.daily.rewards : REWARDS;
 
   html.push(`<div class="reward-grid">`);
-  for (let i = 0; i < REWARDS.length; i++) {
+  for (let i = 0; i < rewards.length; i++) {
     const cls = [];
     if (i < state.rewardDay) cls.push('claimed');
     if (i === state.rewardDay && canClaim) cls.push('today');
-    html.push(`<div class="reward-day ${cls.join(' ')}"><div class="day">День ${i + 1}</div><div class="amt">${fmt(REWARDS[i])}</div></div>`);
+    // 7-й день — тема «Время»
+    if (i === 6) {
+      html.push(`<div class="reward-day ${cls.join(' ')}"><div class="day">День 7</div><div class="amt">⏳ Время</div></div>`);
+    } else {
+      html.push(`<div class="reward-day ${cls.join(' ')}"><div class="day">День ${i + 1}</div><div class="amt">${fmt(rewards[i])}</div></div>`);
+    }
   }
   html.push(`</div>`);
 
-  if (state.rewardDay >= REWARDS.length) {
+  if (state.rewardDay >= rewards.length) {
     html.push(`<div class="empty-msg">Все награды получены! 🎉<br>Заходи завтра, серия обновится.</div>`);
   } else if (canClaim) {
-    html.push(`<button class="btn big" id="claimBtn" style="width:100%;margin-bottom:14px">Забрать награду дня ${state.rewardDay + 1}: ${fmt(REWARDS[state.rewardDay])} ${coinIcon()}</button>`);
+    const isDay7 = state.rewardDay === 6;
+    html.push(`<button class="btn big" id="claimBtn" style="width:100%;margin-bottom:14px">${isDay7 ? 'Забрать тему «Время»' : `Забрать награду дня ${state.rewardDay + 1}: ${fmt(rewards[state.rewardDay])} ${coinIcon()}`}</button>`);
   } else {
     const msLeft = startOfToday.getTime() + DAY - now;
     const h = Math.floor(msLeft / 3600000);
@@ -548,7 +606,7 @@ function renderBank() {
     html.push(`<div class="empty-msg" style="margin-bottom:14px">Уже получено сегодня.<br>Следующая через ${h}ч ${m}м.</div>`);
   }
 
-  /* ===== Ежедневные задания ===== */
+  /* Ежедневные задания */
   html.push(`<div class="section-title" style="margin-top:14px">📅 Ежедневные задания</div>`);
   for (const q of state.daily.quests) {
     const prog = state.daily.progress[q.id] || 0;
@@ -562,7 +620,7 @@ function renderBank() {
     html.push(`<div class="quest-item ${done ? 'done' : ''}"><div class="quest-info"><div class="quest-title">${q.title}</div><div class="quest-progress">${Math.min(prog, q.goal)} / ${q.goal}</div><div class="quest-reward">Награда: ${rewardStr}</div></div>${claimed ? '<div style="font-size:20px">✓</div>' : (done ? `<button class="btn" data-qclaim="${q.id}">Забрать</button>` : '')}</div>`);
   }
 
-  /* ===== Достижения ===== */
+  /* Достижения */
   html.push(`<div class="section-title" style="margin-top:14px">🏅 Достижения (${Object.keys(state.achievements).length}/${ACHIEVEMENTS.length})</div>`);
   for (const a of ACHIEVEMENTS) {
     const done = !!state.achievements[a.id];
@@ -573,13 +631,13 @@ function renderBank() {
     html.push(`<div class="ach-item ${done ? 'done' : ''}"><div class="ach-icon">${a.icon}</div><div class="ach-info"><div class="ach-title">${a.title}</div><div class="ach-desc">${a.desc}</div><div class="ach-progress">${done ? '✓ Получено' : `${Math.min(cur, a.goal)} / ${a.goal}`} · ${rw}</div></div></div>`);
   }
 
-  /* ===== Коды ===== */
+  /* Коды */
   html.push(`<div class="section-title" style="margin-top:14px">🔑 Коды</div>`);
   html.push(`<div class="codes-row"><input id="codeInput" type="text" placeholder="код..." autocomplete="off"><button class="btn" id="codeBtn">Активировать</button></div>`);
 
   content.innerHTML = html.join('');
 
-  /* ===== Обработчики ===== */
+  /* Обработчики */
   const pc = document.getElementById('piggyClaim');
   if (pc) pc.addEventListener('click', () => {
     if (state.pendingOffline <= 0) return;
@@ -604,6 +662,7 @@ function renderBank() {
       state.daily.claimed[qid] = true;
       vibrateNotification('success');
       grantReward(q.reward, `✅ Задание: ${q.title}`);
+      addElo(ELO_REWARDS.dailyQuest);
       renderBank();
       saveState();
     });
@@ -616,8 +675,22 @@ function renderBank() {
 }
 
 function claimReward() {
-  if (state.rewardDay >= REWARDS.length) return;
-  const amount = REWARDS[state.rewardDay];
+  const rewards = (state.daily.rewards && state.daily.rewards.length) ? state.daily.rewards : REWARDS;
+  if (state.rewardDay >= rewards.length) return;
+
+  // 7-й день — тема «Время»
+  if (state.rewardDay === 6) {
+    if (!state.themesOwned.includes('time')) state.themesOwned.push('time');
+    state.activeTheme = 'time';
+    state.rewardDay += 1;
+    state.lastRewardClaim = Date.now();
+    vibrateNotification('success');
+    toast('⏳ Тема «Время» получена!');
+    render();
+    return;
+  }
+
+  const amount = rewards[state.rewardDay];
   state.balance += amount;
   state.rewardDay += 1;
   state.lastRewardClaim = Date.now();
@@ -632,15 +705,262 @@ function tryCode() {
   const code = (input.value || '').trim();
   if (!code) return;
   const key = code.toLowerCase();
-  const found = Object.keys(CODES).find(k => k.toLowerCase() === key);
+
+  // Объединяем CODES и NEWYEAR_CODES (если есть)
+  const allCodes = { ...CODES };
+  if (typeof NEWYEAR_CODES !== 'undefined') Object.assign(allCodes, NEWYEAR_CODES);
+
+  const found = Object.keys(allCodes).find(k => k.toLowerCase() === key);
 
   if (!found) { toast('❌ Неверный код'); input.value = ''; return; }
   if (state.usedCodes.includes(found)) { toast('⚠️ Код уже использован'); input.value = ''; return; }
 
   state.usedCodes.push(found);
-  state.balance += CODES[found].amount;
+  state.balance += allCodes[found].amount;
   vibrateNotification('success');
-  toast(`✅ +${fmt(CODES[found].amount)}`);
+  toast(`✅ +${fmt(allCodes[found].amount)}`);
   input.value = '';
   render();
 }
+
+/* ============================================================
+   BOOSTS
+============================================================ */
+function renderBoosts() {
+  if (!content) return;
+  const active = getActiveBoosts();
+
+  const html = [];
+  html.push(`<div class="section-title">⚡ Бусты</div>`);
+  html.push(`<div class="card-sub" style="text-align:center;margin-bottom:12px">Бусты дают временные усиления. Активация — вручную.</div>`);
+
+  for (const id of Object.keys(BOOSTS)) {
+    const b = BOOSTS[id];
+    const isActive = active[id] > 0;
+    const left = isActive ? Math.ceil(active[id] / 60000) : 0;
+
+    html.push(`
+      <div class="card">
+        <div class="card-info">
+          <div class="card-title">${b.emoji} ${b.name}</div>
+          <div class="card-sub">${b.desc}</div>
+          ${isActive ? `<div class="card-sub" style="color:#4cd964">⏱ Осталось: ${left} мин</div>` : ''}
+        </div>
+        <button class="btn ${isActive ? 'gold' : ''}" data-boost="${id}" ${isActive ? 'disabled' : ''}>${isActive ? 'Активен' : 'Активировать'}</button>
+      </div>
+    `);
+  }
+
+  content.innerHTML = html.join('');
+
+  content.querySelectorAll('[data-boost]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.boost;
+      // Активация только если есть право (например, за подарки) — упрощаем: даём всем
+      if (activateBoost(id)) {
+        renderBoosts();
+        renderHeader();
+      }
+    });
+  });
+}
+
+/* ============================================================
+   STUFF
+============================================================ */
+function renderStuff() {
+  if (!content) return;
+  const html = [];
+  html.push(`<div class="section-title">🧸 Stuff</div>`);
+  html.push(`<div class="card-sub" style="text-align:center;margin-bottom:12px">Персонажи ходят по экрану и помогают.</div>`);
+
+  for (const id of Object.keys(STUFFS)) {
+    const s = STUFFS[id];
+    const owned = !!state.stuffs[id];
+    const active = state.activeStuff === id;
+
+    html.push(`
+      <div class="card">
+        <div class="card-info">
+          <div class="card-title">${s.emoji} ${s.name} ${active ? '· активен' : ''}</div>
+          <div class="card-sub">${s.desc}</div>
+          <div class="card-sub">${owned ? '✅ Есть' : '🔒 Не получен'}</div>
+        </div>
+        <button class="btn" data-stuff="${id}" ${!owned ? 'disabled' : ''} ${active ? 'disabled' : ''}>${active ? 'Активен' : 'Выбрать'}</button>
+      </div>
+    `);
+  }
+
+  // Эльф — вкл/выкл
+  html.push(`<div class="toggle-row" style="margin-top:12px"><div><div class="card-title">Эльф на экране</div><div class="card-sub">Показывать помощника</div></div><div class="toggle ${state.elfEnabled ? 'on' : ''}" id="elfToggle"></div></div>`);
+
+  content.innerHTML = html.join('');
+
+  content.querySelectorAll('[data-stuff]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.stuff;
+      if (!state.stuffs[id]) return;
+      state.activeStuff = id;
+      vibrate('medium');
+      toast(`Активен: ${STUFFS[id].name}`);
+      renderStuff();
+      if (typeof renderStuffOnScreen === 'function') renderStuffOnScreen();
+      saveState();
+    });
+  });
+
+  const elfT = document.getElementById('elfToggle');
+  if (elfT) elfT.addEventListener('click', () => {
+    state.elfEnabled = !state.elfEnabled;
+    elfT.classList.toggle('on', state.elfEnabled);
+    if (typeof renderStuffOnScreen === 'function') renderStuffOnScreen();
+    saveState();
+  });
+}
+
+/* ============================================================
+   ADVENT
+============================================================ */
+function renderAdvent() {
+  if (!content) return;
+  const html = [];
+  html.push(`<div class="section-title">🎄 Адвент-календарь</div>`);
+  html.push(`<div class="card-sub" style="text-align:center;margin-bottom:12px">25.12.2026 – 07.01.2027 · 14 дней</div>`);
+
+  const today = getAdventDay();
+  html.push(`<div class="reward-grid" style="grid-template-columns: repeat(2, 1fr);">`);
+
+  for (const r of ADVENT_REWARDS) {
+    const claimed = state.advent.claimed[r.day];
+    const available = canClaimAdvent(r.day);
+    const locked = r.day > today;
+
+    const cls = claimed ? 'claimed' : (available ? 'today' : '');
+
+    html.push(`
+      <div class="reward-day ${cls}" style="padding:14px 8px">
+        <div class="day">День ${r.day}</div>
+        <div class="amt" style="font-size:12px">${r.label}</div>
+        ${claimed ? '<div style="font-size:11px">✓</div>' : (available ? `<button class="btn" data-advent="${r.day}" style="margin-top:6px;padding:6px 10px;font-size:12px">Забрать</button>` : (locked ? '<div style="font-size:11px;opacity:0.5">🔒</div>' : ''))}
+      </div>
+    `);
+  }
+  html.push(`</div>`);
+
+  content.innerHTML = html.join('');
+
+  content.querySelectorAll('[data-advent]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const day = +btn.dataset.advent;
+      if (claimAdvent(day)) {
+        toast(`🎄 День ${day}: награда получена!`);
+        renderAdvent();
+        renderHeader();
+      }
+    });
+  });
+}
+
+/* ============================================================
+   DAILY SHOP
+============================================================ */
+function renderDailyShop() {
+  if (!content) return;
+  const html = [];
+  html.push(`<div class="section-title">🛍️ Ежедневный магазин</div>`);
+  html.push(`<div class="card-sub" style="text-align:center;margin-bottom:12px">3 предмета · обновляется каждый день</div>`);
+
+  for (const item of state.dailyShop.items) {
+    let label = '';
+    if (item.type === 'boost') label = `${BOOSTS[item.boostId].emoji} ${BOOSTS[item.boostId].name}`;
+    else if (item.type === 'case') label = `📦 Кейс: ${item.caseKind}`;
+    else if (item.type === 'smiley') label = `Смайл ${item.smiley}`;
+    else if (item.type === 'smiles') label = `${fmt(item.amount)} ${coinIcon()}`;
+
+    html.push(`
+      <div class="card">
+        <div class="card-info">
+          <div class="card-title">${label}</div>
+          <div class="card-sub">Цена: ${fmt(item.price)} ${coinIcon()}</div>
+        </div>
+        <button class="btn" data-shop="${item.type}" ${item.bought ? 'disabled' : ''}>${item.bought ? 'Куплено' : 'Купить'}</button>
+      </div>
+    `);
+  }
+
+  content.innerHTML = html.join('');
+
+  content.querySelectorAll('[data-shop]').forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      const item = state.dailyShop.items[i];
+      if (!item || item.bought) return;
+      if (state.balance < item.price) { toast('Недостаточно средств'); return; }
+
+      state.balance -= item.price;
+      item.bought = true;
+
+      if (item.type === 'boost') activateBoost(item.boostId);
+      else if (item.type === 'case') {
+        // Просто выдаём кейс — открывается во вкладке «Кейсы»
+        toast(`📦 Кейс ${item.caseKind} добавлен (открой во вкладке «Кейсы»)`);
+        // Для простоты — сразу открываем
+        if (typeof openCase === 'function') setTimeout(() => openCase(item.caseKind), 100);
+      } else if (item.type === 'smiley') {
+        if (!state.inventory.includes(item.smiley)) state.inventory.push(item.smiley);
+        else state.balance += item.price;
+      } else if (item.type === 'smiles') {
+        state.balance += item.amount;
+      }
+
+      vibrateNotification('success');
+      renderDailyShop();
+      renderHeader();
+      saveState();
+    });
+  });
+}
+
+/* ============================================================
+   RANK
+============================================================ */
+function renderRank() {
+  if (!content) return;
+  const current = getRank(state.elo);
+  const html = [];
+
+  html.push(`<div class="section-title">💎 Ранг</div>`);
+  html.push(`
+    <div class="card column" style="text-align:center;padding:20px">
+      <div style="font-size:60px">${current.emoji}</div>
+      <div class="card-title" style="font-size:22px;color:${current.color}">${current.name}</div>
+      <div class="card-sub">Elo: ${fmt(state.elo)}</div>
+    </div>
+  `);
+
+  html.push(`<div class="section-title">📊 Все ранги</div>`);
+  for (const r of RANKS) {
+    const isCurrent = r.id === current.id;
+    html.push(`
+      <div class="card ${isCurrent ? 'done' : ''}" style="${isCurrent ? 'border-color:' + r.color : ''}">
+        <div class="card-info">
+          <div class="card-title">${r.emoji} ${r.name}</div>
+          <div class="card-sub">от ${fmt(r.min)} Elo</div>
+        </div>
+        ${isCurrent ? '<div style="color:#9cff9c;font-weight:800">✓</div>' : ''}
+      </div>
+    `);
+  }
+
+  html.push(`<div class="section-title" style="margin-top:14px">📈 Как получать Elo</div>`);
+  html.push(`<div class="card-sub" style="line-height:1.8;padding:0 4px">
+    · Клик: +${ELO_REWARDS.click}<br>
+    · Серия 🔥: +${ELO_REWARDS.fireStreakDay} в день<br>
+    · Достижение: +${ELO_REWARDS.achievement}<br>
+    · Ежедневка: +${ELO_REWARDS.dailyQuest}<br>
+    · Кейс: +${ELO_REWARDS.caseOpen}<br>
+    · Крафт: +${ELO_REWARDS.craft}<br>
+    · Ивент: +${ELO_REWARDS.eventAction}
+  </div>`);
+
+  content.innerHTML = html.join('');
+     }
