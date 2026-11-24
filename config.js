@@ -219,3 +219,179 @@ const CRAFT_QTE_NEEDED = 7; // для бонуса
 const CRASH_HOUSE_EDGE = 0.02;
 const CRASH_MAX_MULT = 100;
 const CRASH_MIN_MULT = 1.01;
+/* ============================================================
+   ПАТЧ: НОВОГОДНИЙ ИВЕНТ + ТЕСТЕР + РАНГИ + МАГАЗИН + СЕРИЯ 🔥
+   Добавить в конец config.js
+============================================================ */
+
+/* ===== ТЕСТЕР ===== */
+const ENABLE_TESTER = true;
+const TESTER_USERNAMES = ['bocck4056', 'DAN_1_HOMEP'];
+const TESTER_IDS = [];
+
+/* ===== КОДЫ (новогодний) ===== */
+// Добавляем к существующему CODES — в state.js при загрузке
+const NEWYEAR_CODES = {
+  'happynewyear': { amount: 100000 },
+};
+
+/* ===== СЕРИЯ 🔥 ===== */
+const FIRE_STREAK_MIN_DAYS = 1;
+const FIRE_STREAK_ELO_PER_DAY = 50;
+
+/* ===== РАНГИ (Elo + драгоценные камни) ===== */
+const RANKS = [
+  { id: 'bronze',    name: 'Бронза',    emoji: '🥉', min: 0,       color: '#cd7f32' },
+  { id: 'silver',    name: 'Серебро',   emoji: '🥈', min: 1000,    color: '#c0c0c0' },
+  { id: 'gold',      name: 'Золото',    emoji: '🥇', min: 5000,    color: '#ffd700' },
+  { id: 'platinum',  name: 'Платина',   emoji: '💠', min: 15000,   color: '#e5e4e2' },
+  { id: 'emerald',   name: 'Изумруд',   emoji: '💚', min: 50000,   color: '#50c878' },
+  { id: 'sapphire',  name: 'Сапфир',    emoji: '💙', min: 150000,  color: '#0f52ba' },
+  { id: 'ruby',      name: 'Рубин',     emoji: '❤️', min: 500000,  color: '#e0115f' },
+  { id: 'diamond',   name: 'Алмаз',     emoji: '💎', min: 1500000, color: '#b9f2ff' },
+  { id: 'brilliant', name: 'Бриллиант', emoji: '💍', min: 5000000, color: '#ffffff' },
+];
+
+/* Elo за действия */
+const ELO_REWARDS = {
+  click: 1,
+  fireStreakDay: 50,
+  achievement: 100,
+  dailyQuest: 50,
+  eventAction: 20,
+  caseOpen: 5,
+  craft: 10,
+};
+
+/* ===== БУСТЫ (4 типа) ===== */
+const BOOSTS = {
+  click5: {
+    id: 'click5',
+    name: '×5 клик',
+    emoji: '⚡',
+    desc: 'Сила клика ×5 на 5 минут',
+    duration: 5 * 60 * 1000,
+    effect: { clickMul: 5 },
+    color: '#ffd700',
+  },
+  cps2: {
+    id: 'cps2',
+    name: '×2 CPS',
+    emoji: '⏱️',
+    desc: 'CPS ×2 на 10 минут',
+    duration: 10 * 60 * 1000,
+    effect: { cpsMul: 2 },
+    color: '#4cd964',
+  },
+  crash3: {
+    id: 'crash3',
+    name: '×3 удача',
+    emoji: '🚀',
+    desc: 'Удача в краше ×3 на 3 минуты',
+    duration: 3 * 60 * 1000,
+    effect: { crashLuck: 3 },
+    color: '#ff6b6b',
+  },
+  drop50: {
+    id: 'drop50',
+    name: '+50% дроп',
+    emoji: '🎁',
+    desc: '+50% к дропу смайлов на 15 минут',
+    duration: 15 * 60 * 1000,
+    effect: { dropBonus: 0.5 },
+    color: '#d97aff',
+  },
+};
+
+/* ===== STUFF (персонажи) ===== */
+const STUFFS = {
+  elf: {
+    id: 'elf',
+    name: 'Эльф',
+    emoji: '🧝',
+    desc: 'Помощник Санты. Прыгает на кнопке и даёт советы.',
+    source: 'newyear', // за подарки
+    tips: [
+      'Совет: не забывай про ежедневные задания!',
+      'Попробуй поставить 😎 на полку — оффлайн работает.',
+      'В краше главное — вовремя забрать!',
+      'Не забывай про кейсы — там редкие смайлы.',
+      'Крафт: 3 обычных → 1 золотой.',
+      'Серия 🔥 растёт, если заходить каждый день.',
+      'Бусты можно активировать во вкладке «⚡ Бусты».',
+      'Проверь ежедневный магазин — там бывают скидки.',
+    ],
+    jumpInterval: 3000, // мс
+  },
+  snowman: {
+    id: 'snowman',
+    name: 'Снеговик',
+    emoji: '⛄',
+    desc: 'Зимний друг. Прыгает на кнопке.',
+    source: 'advent', // из адвента
+    tips: [
+      'Бррр! Холодно!',
+      'Снеговик желает тебе удачи!',
+      'Не тай!',
+    ],
+    jumpInterval: 4000,
+  },
+};
+
+/* ===== АДВЕНТ-КАЛЕНДАРЬ (25.12.2026 – 07.01.2027) ===== */
+const ADVENT_START = new Date('2026-12-25T00:00:00').getTime();
+const ADVENT_END   = new Date('2027-01-07T23:59:59').getTime();
+const ADVENT_DAYS = 14;
+
+const ADVENT_REWARDS = [
+  { day: 1,  type: 'smiles', amount: 50000,  label: '50 000 смайлов' },
+  { day: 2,  type: 'boost',  boostId: 'click5', label: 'Буст ×5 клик' },
+  { day: 3,  type: 'smiles', amount: 100000, label: '100 000 смайлов' },
+  { day: 4,  type: 'boost',  boostId: 'cps2',   label: 'Буст ×2 CPS' },
+  { day: 5,  type: 'smiley', smiley: '🍀',     label: 'Смайл 🍀' },
+  { day: 6,  type: 'smiles', amount: 250000, label: '250 000 смайлов' },
+  { day: 7,  type: 'boost',  boostId: 'drop50', label: 'Буст +50% дроп' },
+  { day: 8,  type: 'smiley', smiley: '💎',     label: 'Смайл 💎' },
+  { day: 9,  type: 'smiles', amount: 500000, label: '500 000 смайлов' },
+  { day: 10, type: 'boost',  boostId: 'crash3', label: 'Буст ×3 удача' },
+  { day: 11, type: 'smiley', smiley: '🦄',     label: 'Смайл 🦄' },
+  { day: 12, type: 'smiles', amount: 1000000, label: '1 000 000 смайлов' },
+  { day: 13, type: 'boost',  boostId: 'cps2',   label: 'Буст ×2 CPS' },
+  { day: 14, type: 'special', stuff: 'snowman', boostId: 'click5', label: '⛄ Снеговик + буст ×5 клик' },
+];
+
+/* ===== НОВОГОДНИЙ ИВЕНТ ===== */
+const NEWYEAR_START = new Date('2026-12-20T00:00:00').getTime();
+const NEWYEAR_END   = new Date('2027-01-10T23:59:59').getTime();
+const NEWYEAR_GIFT_LIMIT = 10;           // макс. подарков на экране
+const NEWYEAR_GIFT_SPAWN_MS = 30000;      // проверка спавна раз в 30 сек
+const NEWYEAR_GIFT_CHANCE = 0.3;          // шанс спавна при проверке
+const NEWYEAR_BUTTON_CHANCE = 0.0001;     // 0.01% — подарок из кнопки
+const NEWYEAR_ELF_GIFT_VALUE = 1;         // 1 подарок = 1 очко
+
+/* Награды Эльфа за подарки (рандом) */
+const NEWYEAR_GIFT_REWARDS = [
+  { type: 'smiles', amount: 10000, weight: 40 },
+  { type: 'smiles', amount: 25000, weight: 25 },
+  { type: 'smiles', amount: 50000, weight: 15 },
+  { type: 'boost', boostId: 'click5', weight: 8 },
+  { type: 'boost', boostId: 'cps2', weight: 6 },
+  { type: 'boost', boostId: 'crash3', weight: 3 },
+  { type: 'boost', boostId: 'drop50', weight: 2 },
+  { type: 'stuff', stuffId: 'elf', weight: 1 },
+];
+
+/* ===== ЕЖЕДНЕВНЫЙ МАГАЗИН ===== */
+const DAILY_SHOP_ITEMS = 3;
+const DAILY_SHOP_POOL = [
+  { type: 'boost', boostId: 'click5', price: 50000 },
+  { type: 'boost', boostId: 'cps2', price: 75000 },
+  { type: 'boost', boostId: 'crash3', price: 100000 },
+  { type: 'boost', boostId: 'drop50', price: 80000 },
+  { type: 'case', caseKind: 'normal', price: 8000 },
+  { type: 'case', caseKind: 'gold', price: 800000 },
+  { type: 'case', caseKind: 'thematic', price: 400000 },
+  { type: 'smiley', smiley: '🍀', price: 5000000 },
+  { type: 'smiley', smiley: '💎', price: 10000000 },
+  { type: 'smiles', amount: 100000, price: 150000 },
+];
