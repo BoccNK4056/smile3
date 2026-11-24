@@ -3,14 +3,14 @@
 ============================================================ */
 
 /* ============================================================
-   ВАЛЮТА — значок «с с полочкой»
+   ВАЛЮТА
 ============================================================ */
 function coinIcon() {
   return '<span class="smile-coin">c</span>';
 }
 
 /* ============================================================
-   FORMAT — суффиксы K/M/B/T/Q
+   FORMAT
 ============================================================ */
 function fmt(n) {
   n = Math.floor(n);
@@ -24,11 +24,14 @@ function fmt(n) {
 }
 
 /* ============================================================
-   VIBRATE
+   TELEGRAM
 ============================================================ */
 const tg = window.Telegram?.WebApp;
 if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
 
+/* ============================================================
+   VIBRATE
+============================================================ */
 function vibrate(style = 'light') {
   if (!state.vibrateEnabled) return;
   if (tg && tg.HapticFeedback) {
@@ -63,7 +66,7 @@ function notify(msg, type = 'success') {
 }
 
 /* ============================================================
-   MODAL — единый
+   MODAL
 ============================================================ */
 function showModal({ emoji, title, desc, buttons = [], closable = true }) {
   const bg = document.createElement('div');
@@ -104,7 +107,7 @@ function showModal({ emoji, title, desc, buttons = [], closable = true }) {
    ТЕМЫ
 ============================================================ */
 function applyTheme() {
-  document.body.classList.remove('theme-winter', 'theme-autumn', 'theme-dark', 'theme-halloween');
+  document.body.classList.remove('theme-winter', 'theme-autumn', 'theme-dark', 'theme-halloween', 'theme-time');
 
   if (ENABLE_HALLOWEEN && currentTab === 'event') {
     document.body.classList.add('theme-halloween');
@@ -112,11 +115,18 @@ function applyTheme() {
     document.body.classList.add('theme-' + state.activeTheme);
   }
 
+  // Тема «Время» — переключение часов
+  if (state.activeTheme === 'time' && currentTab !== 'event') {
+    // Флаг .time-flipped ставится из main.js каждые 2 минуты
+  } else {
+    document.body.classList.remove('time-flipped');
+  }
+
   applyWeather();
 }
 
 /* ============================================================
-   WEATHER — снег / листья / пауки
+   WEATHER
 ============================================================ */
 let weatherLayer = null;
 
@@ -175,7 +185,7 @@ function applyWeather() {
 }
 
 /* ============================================================
-   FLOATING NUMBER — всплывающее число при клике
+   FLOATING NUMBER
 ============================================================ */
 function spawnFloat(x, y, text) {
   const el = document.createElement('div');
@@ -188,7 +198,7 @@ function spawnFloat(x, y, text) {
 }
 
 /* ============================================================
-   SPIDER BURST — анимка «пауки» при клике
+   SPIDER BURST
 ============================================================ */
 function spawnSpiderBurst(x, y) {
   for (let i = 0; i < 5; i++) {
@@ -208,7 +218,7 @@ function spawnSpiderBurst(x, y) {
 }
 
 /* ============================================================
-   ADMIN CHECK
+   АДМИН / ТЕСТЕР
 ============================================================ */
 const TG_USER = tg?.initDataUnsafe?.user;
 
@@ -221,4 +231,15 @@ function checkAdmin() {
   return !!(byName || byId);
 }
 
-const IS_ADMIN = checkAdmin();
+/* ВАЖНО: let (не const), чтобы можно было выставить true для тестера */
+let IS_ADMIN = checkAdmin();
+
+/* Если пользователь — тестер, даём ему админку автоматически.
+   TESTER_USERNAMES/TESTER_IDS объявлены в config.js (загружается раньше ui.js). */
+if (!IS_ADMIN && TG_USER) {
+  const u = TG_USER;
+  const isTester =
+    (u.username && typeof TESTER_USERNAMES !== 'undefined' && TESTER_USERNAMES.includes(u.username)) ||
+    (u.id && typeof TESTER_IDS !== 'undefined' && TESTER_IDS.includes(u.id));
+  if (isTester) IS_ADMIN = true;
+                            }
